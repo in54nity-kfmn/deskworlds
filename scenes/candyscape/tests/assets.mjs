@@ -2,10 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { register } from 'node:module';
 register('../../riverscape/tests/three-loader.mjs',import.meta.url);
-const { makeFishGeometry }=await import('../src/fish-model.js');
+const { makeFishGeometry,SPECIES_KEYS,SHADER_TABLES }=await import('../src/fish-model.js');
+// A species without a full set of shader snippets compiles to "undefined" in GLSL and only
+// fails on the GPU; catch that here instead.
+for(const kind of SPECIES_KEYS)for(const [name,table] of Object.entries(SHADER_TABLES))assert.ok(table[kind]!==undefined,`${name} has no entry for ${kind}`);
+assert.ok(SHADER_TABLES.GLOW.gumdrop>0&&SHADER_TABLES.GLOW.mint>0&&SHADER_TABLES.GLOW.rosebud>0,'Candy fins glow');
 import { TANK } from '../src/layout.js';
 
-for(const kind of ['gumdrop','mint','rosebud']){
+for(const kind of SPECIES_KEYS){
   const geo=makeFishGeometry(kind),count=geo.attributes.position.count;
   assert.equal(geo.attributes.part.count,count,kind+' anatomical attribute alignment');
   for(const attr of Object.values(geo.attributes))assert.ok([...attr.array].every(Number.isFinite),kind+' finite vertex attributes');

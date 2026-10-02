@@ -212,104 +212,73 @@ export function makeFishGeometry(kind='gumdrop') {
 // fraction from the dorsal midline (0) to the ventral (1).
 const SKIN={
   gumdrop:`
-    // Orange from xanthophores across the whole flank, only a shade deeper along the back.
-    vec3 skin=mix(vec3(.74,.125,.005),vec3(1.00,.270,.010),smoothstep(.06,.46,band));
-    skin=mix(skin,vec3(1.00,.420,.060),smoothstep(.66,.98,band));
-    // Three bars, in the rostro-caudal order a settling juvenile grows them: the head bar
-    // behind the eye leaning forward at the throat, the trunk bar with the forward wedge
-    // that marks percula, the peduncle bar. The white is a guanine iridophore plate and
-    // the black edge is the melanophore band those iridophores position, so the two are
-    // one feature and are drawn from one signed distance.
+    // Candy tangerine, a shade deeper along the back, paling to apricot at the belly.
+    vec3 skin=mix(vec3(1.00,.420,.060),vec3(1.00,.560,.150),smoothstep(.06,.46,band));
+    skin=mix(skin,vec3(1.00,.760,.420),smoothstep(.66,.98,band));
+    // The same three bars, in icing white with a raspberry edge instead of black.
     float b1=abs(u-(.246-.048*band))-.042;
     float b2=abs(u-(.520-.104*exp(-pow((band-.46)/.215,2.))))-.058;
     float d=min(min(b1,b2),abs(u-.872)-.030);
-    // percula carries thick black borders where ocellaris has a hairline or none at all,
-    // and the black broadens with age: the big female in a group is the blackest fish.
     float edge=.013+.013*vTrim.x,aa=max(fwidth(d),.0012);
-    skin=mix(skin,vec3(.009,.012,.016),1.-smoothstep(edge-aa,edge+aa,d));
-    skin=mix(skin,vec3(.86,.90,.96),1.-smoothstep(-aa,aa,d));`,
+    skin=mix(skin,vec3(.780,.040,.300),1.-smoothstep(edge-aa,edge+aa,d));
+    skin=mix(skin,vec3(1.00,.970,.980),1.-smoothstep(-aa,aa,d));`,
   mint:`
-    // A blue-green chromis is mostly green: pale apple-green over the back washing out
-    // almost to white at the belly, with the blue held in the peduncle and in the
-    // iridophore flare rather than in the base coat. Measured reflectance for the species
-    // carries nothing above green — no yellow, no orange, no red — so the whole coat is
-    // built from green and cyan over a silver belly.
-    vec3 skin=mix(vec3(.045,.300,.235),vec3(.215,.610,.315),smoothstep(.04,.34,band));
-    skin=mix(skin,vec3(.720,.820,.760),smoothstep(.52,.94,band));
-    skin=mix(skin,vec3(.090,.470,.530),smoothstep(.70,1.,u)*.72);
-    // A pair of electric turquoise lines runs from the upper lip to the front of the orbit.
-    skin=mix(skin,vec3(.10,.78,.82),exp(-pow((band-(.30+1.5*u))/.030,2.))*(1.-smoothstep(.04,.11,u))*.8);
-    // The solid black axil is Chromis atripectoralis, sold beside this fish and mistaken
-    // for it; on viridis the upper pectoral base only carries scattered black dots, and
-    // even those show solely when the fin swings forward.
-    skin*=1.-.13*exp(-pow((u-.292)/.032,2.)-pow((band-.44)/.070,2.));
-    // One aggregation runs from green through to blue, and the same fish shifts as it
-    // turns, so the per-animal constant only picks where in that range it sits.
-    skin=mix(skin,skin*vec3(.60,.94,1.34),vTrim.x*.52);
-    // The nesting male goes yellowish while he tends his patch of rubble.
-    skin=mix(skin,skin*vec3(1.55,1.14,.40),vTrim.y*.70);`,
+    // Mint over the back washing to a pearly belly, the peduncle tipped cyan.
+    vec3 skin=mix(vec3(.200,.850,.620),vec3(.550,1.00,.820),smoothstep(.04,.34,band));
+    skin=mix(skin,vec3(.920,1.00,.960),smoothstep(.52,.94,band));
+    skin=mix(skin,vec3(.250,.900,1.00),smoothstep(.70,1.,u)*.72);
+    // A bubblegum line from lip to eye.
+    skin=mix(skin,vec3(.98,.55,.85),exp(-pow((band-(.30+1.5*u))/.030,2.))*(1.-smoothstep(.04,.11,u))*.8);
+    skin=mix(skin,skin*vec3(.80,.98,1.20),vTrim.x*.5);
+    // The nest holder goes lemon.
+    skin=mix(skin,skin*vec3(1.25,1.15,.55),vTrim.y*.6);`,
   rosebud:`
-    // Golden orange, deepest along the back and paling to a yellow belly.
-    vec3 skin=mix(vec3(.84,.170,.006),vec3(.92,.330,.018),smoothstep(.05,.40,band));
-    skin=mix(skin,vec3(.98,.570,.135),smoothstep(.56,.96,band));
-    // The species character, and it is not a violet bar: an orange stripe edged in violet
-    // running from the upper lip, under the eye, back to the pectoral-fin base.
+    // Bubblegum pink, deepest on the back, cream-pink belly.
+    vec3 skin=mix(vec3(1.00,.450,.700),vec3(1.00,.620,.820),smoothstep(.05,.40,band));
+    skin=mix(skin,vec3(1.00,.850,.920),smoothstep(.56,.96,band));
+    // The cheek stripe, lemon edged in violet.
     float line=(band-(.415+.58*u))/.052;
     float stripe=exp(-line*line)*(1.-smoothstep(.22,.33,u));
-    skin=mix(skin,vec3(1.00,.360,.070),stripe*.90);
-    skin=mix(skin,vec3(.46,.14,.58),stripe*min(1.,abs(line))*.85);
-    // The terminal male: magenta head and peduncle over a rose-orange flank. The pale
-    // square patch behind the pectoral belongs to P. pleurotaenia, not to this fish, so
-    // it is deliberately absent; his one body mark is the red blotch on the pectoral fin.
-    vec3 male=mix(vec3(.62,.070,.190),vec3(.74,.250,.130),smoothstep(.13,.46,u));
-    male=mix(male,vec3(.66,.105,.205),smoothstep(.60,.94,u));
-    skin=mix(skin,mix(male,male*vec3(1.22,.88,1.18),smoothstep(.54,1.,band)),vTrim.y);`,
+    skin=mix(skin,vec3(1.00,.920,.450),stripe*.90);
+    skin=mix(skin,vec3(.550,.250,.950),stripe*min(1.,abs(line))*.85);
+    // The terminal male: magenta to violet.
+    vec3 male=mix(vec3(.780,.100,.620),vec3(.600,.200,.950),smoothstep(.13,.46,u));
+    male=mix(male,vec3(.850,.150,.550),smoothstep(.60,.94,u));
+    skin=mix(skin,mix(male,male*vec3(1.15,.90,1.15),smoothstep(.54,1.,band)),vTrim.y);`,
 };
 // Fin membranes: the pigment across the span, hinge (0) to free margin (1). `tail`,
 // `below`, `paired` and `pelvic` name which fin this fragment is on, because the median
 // fins share one sheet and a caudal is not painted like a dorsal.
 const FINS={
   gumdrop:`
-    // Orange membrane with a heavy black margin on the median fins, a translucent rim
-    // outside it, and pelvics that are all but solid black. A flat membrane picks up far
-    // more of the blue ambient than the curved flank beside it, so an orange mixed to
-    // match the skin renders sand: these are cut back in green and blue to compensate.
-    vec3 web=mix(vec3(.80,.150,.004),vec3(.98,.260,.012),span);
-    web=mix(web,vec3(.011,.014,.018),smoothstep(.74,.90,span)*(1.-.70*tail)*(1.-paired+pelvic));
-    web=mix(web,vec3(.46,.48,.50),smoothstep(.95,1.,span)*(1.-paired));
-    // The peduncle bar's black runs on across the base of the caudal, a third of the way out.
-    web=mix(web,vec3(.011,.014,.018),tail*(1.-smoothstep(.20,.36,span)));
-    web=mix(web,vec3(.013,.016,.020),pelvic*.78);
-    // The trunk bar does not stop at the skin: it carries on up the soft dorsal and down
-    // the anal, which is why those two fins look notched white on a photograph.
-    web=mix(web,vec3(.82,.86,.92),(1.-tail)*(1.-smoothstep(.030,.070,abs(axial-.520)))*(1.-smoothstep(.40,.92,span)));`,
+    vec3 web=mix(vec3(1.00,.500,.120),vec3(1.00,.700,.300),span);
+    web=mix(web,vec3(.800,.060,.350),smoothstep(.74,.90,span)*(1.-.70*tail)*(1.-paired+pelvic));
+    web=mix(web,vec3(1.00,.940,.960),smoothstep(.95,1.,span)*(1.-paired));
+    web=mix(web,vec3(.800,.060,.350),tail*(1.-smoothstep(.20,.36,span)));
+    web=mix(web,vec3(.850,.080,.380),pelvic*.78);
+    web=mix(web,vec3(1.00,.970,.980),(1.-tail)*(1.-smoothstep(.030,.070,abs(axial-.520)))*(1.-smoothstep(.40,.92,span)));`,
   mint:`
-    // Hyaline fins the colour of the water it hovers in. Only the outer edges of the
-    // caudal lobes take the livery; a blackish dorsal margin, or a caudal that ran out
-    // into dark filaments, would make this C. atripectoralis instead.
-    vec3 web=mix(vec3(.230,.620,.470),vec3(.520,.820,.740),span);
-    web=mix(web,vec3(.090,.500,.540),tail*smoothstep(.34,1.,span)*smoothstep(.34,.04,min(vSkinUv.x,1.-vSkinUv.x)));`,
+    vec3 web=mix(vec3(.350,.950,.800),vec3(.750,1.00,.950),span);
+    web=mix(web,vec3(.980,.550,.850),tail*smoothstep(.34,1.,span)*smoothstep(.34,.04,min(vSkinUv.x,1.-vSkinUv.x)));`,
   rosebud:`
-    // Golden membrane on both sexes. The male carries it rose instead, and adds a dusky
-    // blue anal, a red blotch on the pectoral and a violet edge along both lobes of the
-    // lyre — the three marks that separate a terminal male from a big female.
-    vec3 web=mix(vec3(.90,.265,.022),vec3(1.00,.470,.048),smoothstep(.16,.82,span));
-    web=mix(web,mix(vec3(.90,.155,.155),vec3(.50,.075,.290),smoothstep(.45,1.,span)),vTrim.y*(.50+.44*tail));
-    web=mix(web,vec3(.115,.140,.40),vTrim.y*below*(1.-tail)*.62);
-    web=mix(web,vec3(.82,.045,.030),vTrim.y*(paired-pelvic)*smoothstep(.22,.74,span));`,
+    vec3 web=mix(vec3(1.00,.550,.780),vec3(1.00,.800,.900),smoothstep(.16,.82,span));
+    web=mix(web,mix(vec3(.900,.250,.750),vec3(.550,.250,.980),smoothstep(.45,1.,span)),vTrim.y*(.50+.44*tail));
+    web=mix(web,vec3(.400,.300,.950),vTrim.y*below*(1.-tail)*.62);
+    web=mix(web,vec3(1.00,.900,.300),vTrim.y*(paired-pelvic)*smoothstep(.22,.74,span));`,
 };
-// Guanine platelets under the scales: a thin-film flare that only shows off normal. It is
-// the whole point of a chromis and barely there on the barred clownfish.
-const SHEEN={gumdrop:'vec3(.080,.085,.125)',mint:'vec3(.090,.330,.430)',rosebud:'vec3(.230,.100,.290)'};
-// The iris is the fastest species mark at tank distance. percula's is bright orange, and
-// ocellaris' greyish one is exactly how the trade tells the two apart; a damsel's is a
-// silver ring round a large dark pupil; both sexes of sea goldie carry the metallic
-// pink-violet orbital ring that runs straight on into the cheek stripe.
+// The guanine flare under the scales, tinted to each candy.
+const SHEEN={gumdrop:'vec3(.200,.120,.180)',mint:'vec3(.250,.450,.550)',rosebud:'vec3(.400,.200,.450)'};
 const EYE={
-  gumdrop:'vec3 iris=vec3(.90,.380,.030),rim=vec3(.10,.035,.012);',
-  mint:'vec3 iris=vec3(.52,.58,.56),rim=vec3(.030,.110,.120);',
-  rosebud:'vec3 iris=vec3(.86,.560,.120),rim=mix(vec3(.40,.16,.42),vec3(.46,.10,.20),vTrim.y);',
+  gumdrop:'vec3 iris=vec3(1.00,.750,.200),rim=vec3(.450,.050,.200);',
+  mint:'vec3 iris=vec3(.850,.950,1.00),rim=vec3(.100,.350,.400);',
+  rosebud:'vec3 iris=vec3(1.00,.850,.300),rim=mix(vec3(.550,.250,.950),vec3(.850,.150,.550),vTrim.y);',
 };
+// Candy fins are lit from behind like stained glass: a little of their own colour is added
+// back as emission, most toward the thin free margin. Not bioluminescence — no glow in shadow
+// beyond what the membrane would pass.
+export const GLOW={gumdrop:.10,mint:.16,rosebud:.14};
+export const SPECIES_KEYS=Object.keys(SPECIES);
+export const SHADER_TABLES={SKIN,FINS,SHEEN,EYE,GLOW};
 
 /** The skin, fin and eye shading for one species. Every animal of that species shares
  *  this material; what differs between them travels in the per-instance aFishTrim:
@@ -390,6 +359,7 @@ function fishMaterial(kind) {
         // the water through; the rays carry most of the opacity. Thickest at the hinge,
         // thinnest at the free margin, and the paired fins thinner again.
         diffuseColor.a=clamp((${n(margin)}+${n(hinge-margin)}*(1.-span))*(.74+.26*rib)*(paired>.5?.66:1.),.10,1.);
+        totalEmissiveRadiance+=diffuseColor.rgb*${n(GLOW[kind])}*(.35+.65*span);
       }else{
         float r=length((vAnatomy.xy-vec2(${n(e.x)},${n(e.y)}))/${n(e.r)});
         ${EYE[kind]}
