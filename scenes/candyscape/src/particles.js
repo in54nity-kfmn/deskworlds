@@ -40,12 +40,12 @@ export function createParticles(scene,simulation,shadow){
         // water's own blue cast: brightness from the water around it, colour from the lamp,
         // blue only from the water between it and the glass.
         vec3 light=reefInscatter(position,reefTime,reefLit(position));
-        glow=grain.y*${MOTE_GAIN.toFixed(1)}*dot(light,vec3(.3,.4,.3))*vec3(.62,.84,1.)*reefTransmittance(reefWaterPath(position,cameraPosition));
+        glow=grain.y*${MOTE_GAIN.toFixed(1)}*dot(light,vec3(.3,.4,.3))*vec3(1.,.85,1.)*reefTransmittance(reefWaterPath(position,cameraPosition));
       }`,
     fragmentShader:`varying vec3 glow;varying float disc;
       void main(){vec2 c=gl_PointCoord-.5;float a=exp(-dot(c,c)*10.)*min(1.,5./disc);gl_FragColor=vec4(glow*a,1.);}`});
   const points=new THREE.Points(g,mat);points.frustumCulled=false;scene.add(points);
-  const foodGeo=new THREE.SphereGeometry(1,7,5),foodMat=new THREE.MeshStandardMaterial({color:'#b49366',roughness:.9});
+  const foodGeo=new THREE.SphereGeometry(1,7,5),foodMat=new THREE.MeshStandardMaterial({color:'#ff9ec9',roughness:.6});
   const pellets=new THREE.InstancedMesh(foodGeo,foodMat,simulation.food.length);pellets.frustumCulled=false;scene.add(pellets);const dummy=new THREE.Object3D();
   return {update(dt){
     for(let i=0;i<N;i++){

@@ -40,7 +40,7 @@ function verruca(a,u,seed){
       best=Math.max(best,Math.exp(-(da*da+dy*dy)/(wart*wart)*1.6)*(.55+.45*hash(site*Math.PI+431)));}}
   return best;
 }
-const FOOT=new THREE.Color('#4a2420'),SHAFT=new THREE.Color('#84402e'),LIP=new THREE.Color('#a8663e'),WART=new THREE.Color('#c89a80'),DISC=new THREE.Color('#a8564c'),LIPS=new THREE.Color('#c07868'),MOUTH=new THREE.Color('#3a1018');
+const FOOT=new THREE.Color('#7a3a6a'),SHAFT=new THREE.Color('#e07ab0'),LIP=new THREE.Color('#ffb0d0'),WART=new THREE.Color('#fff0f6'),DISC=new THREE.Color('#ff8fc0'),LIPS=new THREE.Color('#ffd0e4'),MOUTH=new THREE.Color('#7a1f4a');
 // Each placement becomes one column-and-disc surface of revolution about its own axis,
 // standing on the rock; the disc's dome carries the tentacle roots.
 function specimen(spec,index){
@@ -117,7 +117,7 @@ export function createAnemone(scene){
   const mat=underwater(new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.52,metalness:0}),{
     key:'tank-anemone',vertex,
     // Tissue a few cells thick: the base passes a little light, the tip most of it.
-    transmission:'(.20+.40*smoothstep(.20,1.,vAxis))',
+    transmission:'(.45+.45*smoothstep(.20,1.,vAxis))',
     normal:`tentacleSolve();vec3 slope=normalize(tentacleSlope(position.y));vec3 tx=normalize(vec3(slope.y,-slope.x,0.));vec3 tz=normalize(cross(tx,slope));objectNormal=normalize((tx*normal.x+tz*normal.z)/aShape.y+slope*normal.y/length(tentacleSlope(position.y)));`,
     begin:`float s=position.y;vec3 dir=normalize(tentacleSlope(s));vec3 ax=normalize(vec3(dir.y,-dir.x,0.));vec3 az=normalize(cross(ax,dir));
       transformed=tentacleCenter(s)+(ax*position.x+az*position.z)*aShape.y;
@@ -126,13 +126,13 @@ export function createAnemone(scene){
     // Light through the thin edge of a tentacle: where the surface turns away from the
     // eye the tissue goes pale and warm instead of dark, and the wet tip carries the highlight.
     surfaceNormal:`float thin=smoothstep(.30,.95,vAxis),rim=pow(1.-abs(dot(normal,normalize(vViewPosition))),2.5);
-      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.80,.64,.50),rim*thin*.32);roughnessFactor*=1.-.10*thin;`,
+      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(1.,.85,.95),rim*thin*.32);roughnessFactor*=1.-.10*thin;`,
     // Kept well below the tone mapper's shoulder: under the reef lamp a brighter gold shaft
     // turns cream. The knob goes lilac. Brown pigment lies in irregular blotches along the
     // shaft, not rings: two waves
     // along the axis beat against one round the tube, phased per tentacle.
     color:`float mottle=smoothstep(.30,.80,.5+.5*sin(vAxis*17.+vSeed*40.)*sin(vAround*2.+vAxis*6.+vSeed*23.)*(.7+.3*sin(vAxis*7.3-vSeed*13.)));
-      vec3 root=vec3(.16,.05,.04),shaft=mix(vec3(.42,.24,.07),vec3(.52,.33,.10),vTone),bands=vec3(.42,.20,.05),tip=vec3(.64,.46,.58);
+      vec3 root=vec3(.55,.20,.45),shaft=mix(vec3(.95,.45,.70),vec3(1.,.62,.80),vTone),bands=vec3(.70,.95,.80),tip=vec3(1.,.95,.70);
       vec3 tissue=mix(root,shaft,smoothstep(0.,.22,vAxis));
       tissue=mix(tissue,bands,mottle*.45*smoothstep(.08,.30,vAxis)*(1.-smoothstep(.78,.98,vAxis)));
       tissue=mix(tissue,tip,smoothstep(.80,.96,vAxis));
@@ -141,7 +141,7 @@ export function createAnemone(scene){
       // reaches the depths has come through tissue, so they go deep orange rather than
       // grey. Cheaper and steadier than shadowing a few hundred swaying instances.
       float buried=(1.-smoothstep(.22,.82,vAxis))*(1.-.60*vRing*vRing);
-      diffuseColor.rgb=mix(tissue,vec3(.14,.06,.015),buried*.78);`
+      diffuseColor.rgb=mix(tissue,vec3(.30,.08,.20),buried*.60);`
   });
   const tentacles=new THREE.InstancedMesh(tentacleGeometry(),mat,TENTACLE_COUNT);
   const shapes=new Float32Array(TENTACLE_COUNT*4),curves=new Float32Array(TENTACLE_COUNT*4),flex=new Float32Array(TENTACLE_COUNT);

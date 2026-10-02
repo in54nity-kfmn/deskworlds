@@ -49,39 +49,38 @@ export function createCorals(scene){
   const ACRO={roots:18,forks:5,thickness:.056,reach:.50,spread:.44,radials:34,glow:.62},NEEDLE={thickness:.033,forks:3,roots:6,order:3,rise:.80,corallite:.08,blunt:0,radials:22,glow:.5};
   const FINGER={thickness:.070,forks:2,roots:16,order:1,rise:1.0,taper:.78,blunt:1,spread:.46,radials:26,glow:.45},BRUSH={roots:16,forks:3,order:1,thickness:.062,reach:.66,spread:.36,taper:.70,blunt:.8,radials:86,glow:.55};
   const branches=[
-    grow(-5.82,-1.00,.42,2.10,1.05,39,'#b88a44','#f4e2b0',ACRO),
-    grow(-7.10,-1.05,.42,1.75,1.16,74,'#7e9a36','#e0f090',{...ACRO,roots:14,thickness:.050,reach:.58,spread:.34}),
-    grow(-4.35,-2.15,.60,2.30,.99,122,'#8e7898','#e6d6f0',NEEDLE),
-    grow(5.45,-1.52,.05,1.80,1.22,82,'#a4a03c','#eef2a0',ACRO),
-    grow(7.34,-1.62,.38,1.30,1.00,417,'#b88a44','#f4e2b0',{...ACRO,roots:12,thickness:.052,reach:.62,spread:.34}),
-    grow(3.28,-1.52,.38,1.60,.86,23,'#b08c76','#eedcd0',NEEDLE),
-    grow(4.30,1.55,.17,.84,.98,611,'#8a6a48','#d4c098',{...FINGER,vary:.40}),
-    // The arch lintel carries its own colonies, a tan Acropora and a purple bottlebrush;
-    // the cave beneath stays open.
-    grow(-.45,-1.14,.12,.95,.90,707,'#a08050','#ecdab0',{...ACRO,roots:12,forks:4,reach:.56}),
-    grow(1.34,-1.24,.30,.95,.55,811,'#6c4e8c','#cdb4ec',BRUSH),
+    grow(-5.82,-1.00,.42,2.10,1.05,39,'#ff7ab8','#ffe0f0',ACRO),
+    grow(-7.10,-1.05,.42,1.75,1.16,74,'#6ee8b0','#e8fff4',{...ACRO,roots:14,thickness:.050,reach:.58,spread:.34}),
+    grow(-4.35,-2.15,.60,2.30,.99,122,'#a98bff','#efe6ff',NEEDLE),
+    grow(5.45,-1.52,.05,1.80,1.22,82,'#ffd25a','#fff6d8',ACRO),
+    grow(7.34,-1.62,.38,1.30,1.00,417,'#ff7ab8','#ffe0f0',{...ACRO,roots:12,thickness:.052,reach:.62,spread:.34}),
+    grow(3.28,-1.52,.38,1.60,.86,23,'#7fd8ff','#e6f8ff',NEEDLE),
+    grow(4.30,1.55,.17,.84,.98,611,'#ff9f6a','#ffe6d6',{...FINGER,vary:.40}),
+    // The arch lintel carries its own colonies; the cave beneath stays open.
+    grow(-.45,-1.14,.12,.95,.90,707,'#ffb0d8','#fff0f8',{...ACRO,roots:12,forks:4,reach:.56}),
+    grow(1.34,-1.24,.30,.95,.55,811,'#b47bff','#f0e2ff',BRUSH),
     // Low colonies crowd the host's foot, so its column rises out of the reef, not bare rock.
-    grow(-3.66,1.34,.10,.92,.95,1201,'#6e8636','#d4e894',{...FINGER,roots:13,vary:.30}),
-    grow(-4.38,1.30,.10,.84,.80,1207,'#8a6a92','#e2cdea',{...FINGER,roots:10,thickness:.075,vary:.30}),
-    grow(-7.30,1.10,.06,.55,.90,1213,'#8a6a48','#d4c098',{...FINGER,roots:12,vary:.30}),
-    // A lime Pocillopora on the right shoulder, all blunt lumpy branchlets.
-    grow(6.15,.50,.02,.85,1.05,905,'#6aa232','#d4f482',{...FINGER,roots:30,forks:3,order:1,thickness:.11,reach:.46,spread:.50,taper:.72,radials:40,glow:.5,vary:.25}),
+    grow(-3.66,1.34,.10,.92,.95,1201,'#8af07a','#f0ffe8',{...FINGER,roots:13,vary:.30}),
+    grow(-4.38,1.30,.10,.84,.80,1207,'#e08aff','#f8e8ff',{...FINGER,roots:10,thickness:.075,vary:.30}),
+    grow(-7.30,1.10,.06,.55,.90,1213,'#ffc27a','#fff0dc',{...FINGER,roots:12,vary:.30}),
+    grow(6.15,.50,.02,.85,1.05,905,'#c8ff5a','#f6ffd8',{...FINGER,roots:30,forks:3,order:1,thickness:.11,reach:.46,spread:.50,taper:.72,radials:40,glow:.5,vary:.25}),
   ];
-  scene.add(mesh(merge(branches),coralMaterial('branching-coral',{cells:70,sheen:.55,transmission:.20})));
+  // Rock-candy spires: glassier and more translucent than living tissue.
+  scene.add(mesh(merge(branches),coralMaterial('branching-coral',{cells:70,sheen:.8,sheenColor:'#ffe6ff',roughness:.35,transmission:.45})));
 
   // Capricornis grows in overlapping whorls, so each colony gets a second tier; the
   // one olive morph stands on both islands.
   const plates=[
-    plateCoral([4.38,2.98,-.30],.60,180,'#6a7e3e','#cbd49a',.42),plateCoral([4.88,2.62,.10],.46,183,'#64763a','#cbd49a',.32),
-    plateCoral([-6.05,2.22,.30],.58,271,'#6a7e3e','#cbd49a',.42),plateCoral([-5.62,1.84,.70],.46,274,'#64763a','#cbd49a',.30),
-    plateCoral([-4.05,supportHeight(-4.05,1.85)+.04,1.85],.36,277,'#6a7e3e','#cbd49a',.36)];
-  scene.add(mesh(merge(plates),coralMaterial('plate-coral',{cells:46,relief:.25,side:THREE.DoubleSide,roughness:.8,sheen:.25,transmission:.16})));
+    plateCoral([4.38,2.98,-.30],.60,180,'#7fe0c8','#e8fff8',.42),plateCoral([4.88,2.62,.10],.46,183,'#7fe0c8','#e8fff8',.32),
+    plateCoral([-6.05,2.22,.30],.58,271,'#7fe0c8','#e8fff8',.42),plateCoral([-5.62,1.84,.70],.46,274,'#7fe0c8','#e8fff8',.30),
+    plateCoral([-4.05,supportHeight(-4.05,1.85)+.04,1.85],.36,277,'#7fe0c8','#e8fff8',.36)];
+  scene.add(mesh(merge(plates),coralMaterial('plate-coral',{cells:46,relief:.25,side:THREE.DoubleSide,roughness:.8,sheen:.25,transmission:.35})));
 
   // Massive colonies on the rock shoulders, half buried in it: a meandering brain on the
   // left, and on the right a Favia whose cups carry a green oral disc between brown walls.
-  const brain=massiveCoral([-4.95,supportHeight(-4.95,2.05)+.10,2.05],[.66,.40,.54],-94,'#8a7446','#2a3018',{ridges:26,relief:.17});
+  const brain=massiveCoral([-4.95,supportHeight(-4.95,2.05)+.10,2.05],[.66,.40,.54],-94,'#ff9fc8','#a0306a',{ridges:26,relief:.17});
   scene.add(mesh(brain,coralMaterial('brain-coral',{cells:34,relief:.3,roughness:.6,transmission:.12,cup:[1.1,1.12,.95]})));
-  const favia=massiveCoral([3.35,supportHeight(3.35,1.45)+.08,1.45],[.70,.44,.58],64,'#98805a','#6e5a3c',{ridges:0,relief:0});
+  const favia=massiveCoral([3.35,supportHeight(3.35,1.45)+.08,1.45],[.70,.44,.58],64,'#ffd88a','#c08a40',{ridges:0,relief:0});
   scene.add(mesh(favia,coralMaterial('favia-coral',{cells:13,relief:.5,roughness:.55,transmission:.12,cup:[.80,1.25,.60],groove:.62,
     shape:'.55*smoothstep(0.,.32,e)+.45*exp(-pow((d-.30)/.12,2.))-.55*(1.-smoothstep(0.,.15,d))'})));
 
@@ -89,10 +88,10 @@ export function createCorals(scene){
   // packed so their tentacle rings touch. Each mat is one clone of one of a few morphs —
   // green, a tan Palythoa with lime mouths, a teal with orange mouths — drifting in hue
   // and brightness from polyp to polyp, so it reads as a colony, not a tiled texture.
-  const MORPHS=[['#d8c060','#4f8a36','#173c1e'],['#a8d858','#7c6a3c','#2a2414'],['#e89a48','#3a7a6e','#12302a']];
+  const MORPHS=[['#ffe07a','#ff6fb0','#7a1f4a'],['#c8ff7a','#7a5aff','#2a1a5a'],['#ffb07a','#3ad0c0','#0a4a48']];
   const patches=[[-6.00,1.85,1.02,0],[-3.13,2.03,.86,1],[2.72,.40,.80,0],[-5.45,-.26,.58,2],[4.74,-.81,.74,1],[-1.30,2.05,.55,2],[6.95,1.80,.62,0],[-6.95,1.25,.55,1]];
   const normal=new THREE.Vector3(),up=new THREE.Vector3(0,1,0),q=new THREE.Quaternion(),m=new THREE.Matrix4(),color=new THREE.Color(),mats=MORPHS.map(()=>({placed:[],colors:[]}));
-  const zoaMat=coralMaterial('zoanthid-gardens',{cells:150,relief:.2,roughness:.55,side:THREE.DoubleSide,sheen:.4,sheenColor:'#c8f0a0',transmission:.28,cup:[1,1,1]});
+  const zoaMat=coralMaterial('zoanthid-gardens',{cells:150,relief:.2,roughness:.55,side:THREE.DoubleSide,sheen:.4,sheenColor:'#fff0c8',transmission:.28,cup:[1,1,1]});
   for(const [cx,cz,size,morph] of patches){const {placed,colors}=mats[morph];
     const count=Math.round(460*size*size);
     for(let j=0;j<count;j++){
@@ -114,7 +113,7 @@ export function createCorals(scene){
 
   // The gorgonian fan is the one colony that bends: it stands well up into the water
   // column and sways from its holdfast.
-  const fan=flexible(seaFan([6.85,3.30,-.62],3.05,54,'#8a5a58','#e2b8b0',{yaw:-.26,order:9,thickness:.084,shorten:.84}),3.30,3.05);
+  const fan=flexible(seaFan([6.85,3.30,-.62],3.05,54,'#ff8fd0','#fff0fa',{yaw:-.26,order:9,thickness:.084,shorten:.84}),3.30,3.05);
   scene.add(mesh(fan,underwater(new THREE.MeshStandardMaterial({vertexColors:true,roughness:.6}),{key:'reef-tissue',transmission:.18,vertex:responseGLSL,
     normal:`objectNormal.y-=.52*uv.x*dot(reefResponse(position,reefTime,.85),objectNormal.xz);`,
     begin:`transformed.xz+=reefResponse(position,reefTime,.85)*uv.x*uv.x*.30;`}),false));
