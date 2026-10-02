@@ -198,7 +198,7 @@ async function start(){
   restart();
   window.candy={
     ready:true,diagnostics:()=>({...simulation.diagnostics(),frames,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,
-      pixels:[canvas.width,canvas.height],quality,effectiveFPS:running()?fps():0,renderScale:ratio,cpuFrameEMA:cpuEMA,scheduled:loop.state.pending,paused,hostRate,hidden:document.hidden,contextLost,tentacles:anemone.tentacles.count,webgl:renderer.capabilities.isWebGL2?'WebGL2':'WebGL2',renderer:renderer.getContext().getParameter(renderer.getContext().RENDERER)}),
+      pixels:[canvas.width,canvas.height],quality,effectiveFPS:running()?fps():0,renderScale:ratio,cpuFrameEMA:cpuEMA,scheduled:loop.state.pending,paused,hostRate,hidden:document.hidden,contextLost,tentacles:anemone.tentacles.count,sparkles:sparkles.pool.alive(),webgl:renderer.capabilities.isWebGL2?'WebGL2':'WebGL2',renderer:renderer.getContext().getParameter(renderer.getContext().RENDERER)}),
     setView(name){if(!views[name])throw new RangeError('Unknown reef camera');applyView(name);resize();},
     pause(value=true){paused=Boolean(value);restart();},
     advance(seconds){if(!paused)throw new Error('Pause before advancing deterministic capture time.');if(!Number.isFinite(seconds)||seconds<0||seconds>120)throw new RangeError('Advance must be 0–120 seconds.');for(let i=0;i<Math.round(seconds/FIXED_STEP);i++)simulation.step(FIXED_STEP);sync(seconds);render();},

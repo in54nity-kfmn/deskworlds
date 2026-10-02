@@ -62,7 +62,8 @@ export function createSparkles(scene,simulation){
       void main(){vec2 c=gl_PointCoord-.5;float r=dot(c,c);
         // A soft core with a four-point star across it: reads as a sparkle, not a dust mote.
         float core=exp(-r*28.),star=exp(-abs(c.x)*40.)*exp(-abs(c.y)*6.)+exp(-abs(c.y)*40.)*exp(-abs(c.x)*6.);
-        gl_FragColor=vec4(vColor*(core*1.6+star*.9)*pow(vLife,1.5),1.);}`});
+        // Kept under the tone mapper's shoulder, or every species' glint bleaches to the same white.
+        gl_FragColor=vec4(vColor*(core*.85+star*.55)*pow(vLife,1.5),1.);}`});
   const points=new THREE.Points(g,mat);points.frustumCulled=false;scene.add(points);
   const flow=(x,y,z,out)=>{point.set(x,y,z);currentAt(point,waterTime.value,flowOut);out.x=flowOut.x;out.y=flowOut.y;out.z=flowOut.z;};
   return {pool,
