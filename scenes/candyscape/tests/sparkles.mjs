@@ -38,4 +38,38 @@ const mine=(events,i)=>events.filter(e=>e.index===i).length;
   const run=()=>{const s=new ReefSimulation(9),out=[];for(let k=0;k<600;k++){s.step(FIXED_STEP,at(s.fish[(k>>4)%s.fish.length],.3));out.push(...s.drainSparkles());}return out;};
   assert.deepEqual(run(),run());
 }
+const { SparklePool,SPARKLE_LIFE,SPARKLE_COLORS,createSparkles }=await import('../src/sparkles.js');
+const THREE=await import('three');
+// One burst: N live sprites that rise, fade and retire on time.
+{
+  const pool=new SparklePool(512,1);pool.emit(0,3,1,[1,.5,.8],24);
+  assert.equal(pool.alive(),24);const y0=[...Array(24)].reduce((s,_,i)=>s+pool.position[i*3+1],0)/24;
+  for(let k=0;k<30;k++)pool.update(1/60);
+  const y1=[...Array(24)].reduce((s,_,i)=>s+pool.position[i*3+1],0)/24;assert.ok(y1>y0,'Sparkles drift upward like bubbles');
+  assert.ok(pool.life(0)>0&&pool.life(0)<1,'Fading');
+  for(let k=0;k<60;k++)pool.update(1/60);assert.equal(pool.alive(),0,'Retired after SPARKLE_LIFE');assert.equal(pool.life(0),0);
+}
+// Flood: far more than the pool holds — the ring overwrites the oldest, never grows.
+{
+  const pool=new SparklePool(512,2);for(let k=0;k<100;k++)pool.emit(k*.1,2,1,[1,1,1],24);
+  assert.equal(pool.alive(),512);assert.equal(pool.position.length,512*3);assert.ok([...pool.position].every(Number.isFinite));
+}
+// Zero dt (paused, hidden, host rate 0): nothing moves, nothing ages.
+{
+  const pool=new SparklePool(64,3);pool.emit(1,2,3,[1,1,1],8);const before=[...pool.position],life=pool.life(0);
+  for(let k=0;k<100;k++)pool.update(0);
+  assert.deepEqual([...pool.position],before);assert.equal(pool.life(0),life);
+}
+// Deterministic for a seed.
+{const a=new SparklePool(64,4),b=new SparklePool(64,4);a.emit(0,0,0,[1,1,1]);b.emit(0,0,0,[1,1,1]);a.update(.1);b.update(.1);assert.deepEqual([...a.position],[...b.position]);}
+// Every species has a sparkle colour.
+for(const kind of ['gumdrop','mint','rosebud','lollipop'])assert.equal(SPARKLE_COLORS[kind].length,3);
+assert.ok(SPARKLE_LIFE>.8&&SPARKLE_LIFE<1.3);
+// Wired to a simulation: hover events become live sprites, drained exactly once.
+{
+  const s=new ReefSimulation(3),scene=new THREE.Scene(),fx=createSparkles(scene,s);
+  const f=s.fish.find(g=>g.kind==='rosebud');s.step(FIXED_STEP,at(f));fx.update(FIXED_STEP);
+  assert.equal(fx.pool.alive()%24,0);assert.ok(fx.pool.alive()>=24);assert.equal(s.drainSparkles().length,0);
+  assert.ok(scene.children.some(c=>c.isPoints),'Adds one Points object');
+}
 console.log('candyscape sparkle events ok');
