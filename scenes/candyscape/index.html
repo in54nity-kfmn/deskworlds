@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d1a3a" />
+    <meta
+      name="description"
+      content="A candy-coloured reef tank with gumdrop, mint, rosebud and lollipop fish that sparkle when the cursor comes near. A local, interactive 3D preview."
+    />
+    <title>Candyscape • Deskworlds</title>
+    <link rel="icon" href="../../ui/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "../../vendor/three.module.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="stage" aria-label="Interactive candy reef">
+      <canvas
+        id="scene"
+        tabindex="0"
+        aria-label="A candy-coloured reef tank with four kinds of fish that sparkle when the cursor comes near. Click to feed. Space pauses. F enters fullscreen. H hides controls."
+      ></canvas>
+      <nav class="chrome" aria-label="Worlds">
+        <a class="home-link" href="../../" aria-label="Deskworlds home">Deskworlds</a>
+        <div class="scene-nav">
+          <a href="../riverscape/">Riverbed</a>
+          <a href="../reefscape/">Coral reef</a>
+          <a href="../bettascape/">Betta</a>
+          <a href="../plasmascape/">Plasma globe</a>
+          <span aria-current="page">Candyscape</span>
+        </div>
+      </nav>
+      <footer class="chrome" aria-label="World controls">
+        <div class="buttons">
+          <button disabled id="pause" aria-pressed="false" title="Space">Pause</button>
+          <button disabled id="feed">Feed</button>
+          <button disabled id="fullscreen" title="F">Fullscreen</button>
+        </div>
+        <div class="preferences">
+          <select disabled id="quality" aria-label="Quality">
+            <option value="eco">Eco</option>
+            <option value="balanced" selected>Balanced</option>
+            <option value="detail">Detail</option>
+          </select>
+          <button disabled id="hide" title="H">Hide controls</button>
+        </div>
+      </footer>
+      <button disabled id="show-controls" title="H">Show controls</button>
+      <div id="loading" role="status"><p>Loading world…</p></div>
+      <div id="error" role="alert" hidden></div>
+    </main>
+    <script type="module" src="../shared/start.js" data-entry="./src/main.js"></script>
+  </body>
+</html>
