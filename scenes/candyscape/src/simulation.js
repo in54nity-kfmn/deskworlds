@@ -10,7 +10,7 @@ export const FIXED_STEP=1/60;
 // is 3.4 — and a captive lyretail harem is one terminal male to four to six females. Nine
 // chromis is also a keeper's number: below seven a pod concentrates its aggression on one
 // fish and eats itself down to a single survivor.
-export const POPULATION={clownfish:3,chromis:9,anthias:7};
+export const POPULATION={gumdrop:3,mint:9,rosebud:7};
 const REEF_BOUNDS=[...ROCKS,...CORAL_BOUNDS];
 // Where the two Acropora thickets sit in that list. A chromis does not merely hover near
 // its colony, it lives in it — juveniles barely leave the branches and the whole pod drops
@@ -21,17 +21,17 @@ const USWIM=2.0;
 // The shoals are moving social groups. Their original homes remain alarm refuges, not
 // invisible tethers. Each group visits all three thirds of the reef at a bounded speed.
 const SHOALS=[
-  {kind:'chromis',home:[-4.9,5.7,.1],spread:[.90,.48,.70],speed:.56,shelter:THICKETS[0]},
-  {kind:'chromis',home:[4.9,5.7,.1],spread:[.92,.46,.72],speed:.59,shelter:THICKETS[1]},
-  {kind:'anthias',home:[PROMONTORY.x,5.5,1.5],spread:[1.35,.65,.90],speed:.53,shelter:PROMONTORY},
+  {kind:'mint',home:[-4.9,5.7,.1],spread:[.90,.48,.70],speed:.56,shelter:THICKETS[0]},
+  {kind:'mint',home:[4.9,5.7,.1],spread:[.92,.46,.72],speed:.59,shelter:THICKETS[1]},
+  {kind:'rosebud',home:[PROMONTORY.x,5.5,1.5],spread:[1.35,.65,.90],speed:.53,shelter:PROMONTORY},
 ];
 // Visual gait controls, not a species-specific hydrodynamic calibration. Frequency is
 // derived from through-water speed / body length / stride, with no high resting floor.
 // Modest propulsion bouts alternate with low-drag coasts; pectorals do the hovering.
 export const GAIT={
-  clown:{length:.98,stride:.70,thrust:2.7,drag:.45,bout:[.7,1.1],glide:[.7,1.3],idle:.18,slip:.22,turn:1.65,pectoral:1.8,tail:.24},
-  chromis:{length:.82,stride:.68,thrust:2.5,drag:.32,bout:[.65,1.05],glide:[.8,1.65],idle:.17,slip:.12,turn:1.75,pectoral:1.65,tail:1},
-  anthias:{length:1.14,stride:.68,thrust:2.2,drag:.29,bout:[.70,1.15],glide:[.9,1.8],idle:.17,slip:.12,turn:1.55,pectoral:1.5,tail:1},
+  gumdrop:{length:.98,stride:.70,thrust:2.7,drag:.45,bout:[.7,1.1],glide:[.7,1.3],idle:.18,slip:.22,turn:1.65,pectoral:1.8,tail:.24},
+  mint:{length:.82,stride:.68,thrust:2.5,drag:.32,bout:[.65,1.05],glide:[.8,1.65],idle:.17,slip:.12,turn:1.75,pectoral:1.65,tail:1},
+  rosebud:{length:1.14,stride:.68,thrust:2.2,drag:.29,bout:[.70,1.15],glide:[.9,1.8],idle:.17,slip:.12,turn:1.55,pectoral:1.5,tail:1},
 };
 
 export class ReefSimulation {
@@ -44,16 +44,16 @@ export class ReefSimulation {
     // 1.26 times its immediate subordinate's length, and 1.37 for the two smallest fish.
     // These three sizes are that ladder, so the group reads as a queue rather than a trio.
     const initial=[[-5.15,4.18,2.1],[-2.78,3.99,1.85],[-3.54,3.85,2.35]];
-    for(let i=0;i<3;i++)this.add('clown',initial[i],[.84,.66,.48][i],i);
-    for(let i=0;i<9;i++)this.add('chromis',null,.63+(i?this.random()*.13:.15),i,i%2);
+    for(let i=0;i<3;i++)this.add('gumdrop',initial[i],[.84,.66,.48][i],i);
+    for(let i=0;i<9;i++)this.add('mint',null,.63+(i?this.random()*.13:.15),i,i%2);
     // Rank 0 is the terminal male. FishBase puts the male at 15 cm against 7 cm for the
     // female, and an aquarium harem at about 12.5 cm to 9; he is half again their length.
-    for(let i=0;i<7;i++)this.add('anthias',null,(i?.66:1.00)+this.random()*.09,i,2);
+    for(let i=0;i<7;i++)this.add('rosebud',null,(i?.66:1.00)+this.random()*.09,i,2);
     this.previous=this.fish.map(()=>({p:V(),v:V(),alarm:0}));
   }
   add(kind,position,size,rank,shoal=-1) {
     const r=this.random;
-    const f={kind,rank,size,shoal,station:V(r()*2-1,r()*2-1,r()*2-1),position:V(),velocity:V(kind==='clown'?.11:-.28,0,.02),goal:V(),goalTimer:0,phase:r()*6.28,yaw:kind==='clown'?0:Math.PI,pitch:0,bank:0,roll:0,bend:0,turning:0,
+    const f={kind,rank,size,shoal,station:V(r()*2-1,r()*2-1,r()*2-1),position:V(),velocity:V(kind==='gumdrop'?.11:-.28,0,.02),goal:V(),goalTimer:0,phase:r()*6.28,yaw:kind==='gumdrop'?0:Math.PI,pitch:0,bank:0,roll:0,bend:0,turning:0,
       speed:.1,wave:0,tailAmplitude:0,tailHz:0,steer:V(),route:[],routeTimer:0,cruise:.92+r()*.16,beat:false,bout:r(),pectoral:r()*6.28,rowing:1,alarm:0,shelterAccess:0,spook:0,state:'forage',hold:0,show:6+r()*9,display:0,roam:0,follow:null};
     if(position)f.position.set(...position);else{
       this.station(f,f.position);
@@ -67,7 +67,7 @@ export class ReefSimulation {
   // juveniles ranging above him, so his slot only ever runs downward from the group's
   // centre where theirs runs either way: the harem stacks male-low, not male-high.
   station(f,out) {
-    const s=this.shoals[f.shoal],k=s.swell,lead=f.kind==='anthias'&&!f.rank;
+    const s=this.shoals[f.shoal],k=s.swell,lead=f.kind==='rosebud'&&!f.rank;
     const rise=lead?-.62-Math.abs(f.station.y)*.55:f.station.y;
     return out.set(s.centre.x+f.station.x*s.spread[0]*k,s.centre.y+rise*s.spread[1]*k,s.centre.z+f.station.z*s.spread[2]*k).addScaledVector(s.velocity,1.5);
   }
@@ -98,7 +98,7 @@ export class ReefSimulation {
   }
   chooseGoal(f) {
     const r=this.random;
-    if(f.kind==='clown') {
+    if(f.kind==='gumdrop') {
       // Buston's field work: percula rarely stray past the periphery of their host's
       // tentacles, and the dominant female ranges widest while the smallest non-breeder is
       // held closest by her. Roughly a third of those excursions are a bathe instead — the
@@ -116,7 +116,7 @@ export class ReefSimulation {
     // shoalmate close enough to see it go is likely to go with it. Those small breakaway
     // groups, two or three fish sweeping the tank together and rejoining, are what the
     // school does between alarms; the alignment below keeps them moving as one.
-    if(r()<(f.kind==='chromis'?.16:.23)&&f.alarm<=0){
+    if(r()<(f.kind==='mint'?.16:.23)&&f.alarm<=0){
       f.roam=2+Math.floor(r()*2);this.openWater(f.goal,f.position);f.goalTimer=24+r()*12;f.hold=0;
       for(const o of this.fish)if(o!==f&&o.kind===f.kind&&o.roam<=0&&!o.follow&&o.hold<=0&&o.position.distanceToSquared(f.position)<2.6&&r()<.40)o.follow=f;
       return;
@@ -126,7 +126,7 @@ export class ReefSimulation {
     f.hold=0;
     const keep=.72,churn=1-keep;
     f.station.set(f.station.x*keep+(r()*2-1)*churn,f.station.y*keep+(r()*2-1)*churn,f.station.z*keep+(r()*2-1)*churn);
-    if(f.kind==='chromis'&&r()<.12){
+    if(f.kind==='mint'&&r()<.12){
       const other=1-f.shoal;
       if(f.position.distanceToSquared(this.shoals[other].centre)<9)f.shoal=other;
     }
@@ -155,7 +155,7 @@ export class ReefSimulation {
     f.bout-=dt;
     if(target<g.idle&&f.alarm<=0){
       f.beat=false;f.speed+=(target-f.speed)*ease(3.5);f.wave*=Math.exp(-dt*8);
-    }else if(f.kind==='clown'&&f.alarm<=0){
+    }else if(f.kind==='gumdrop'&&f.alarm<=0){
       // Normal clownfish swimming is pectoral-powered, not an axial tail oscillator.
       f.beat=false;f.speed+=(target-f.speed)*ease(g.thrust);
       const effort=clamp((target-.32)/.55,0,1)*g.tail;
@@ -173,10 +173,10 @@ export class ReefSimulation {
     // A coast genuinely straightens the tail; no baseline wave is added in the renderer.
     f.tailHz=clamp(f.speed/(g.length*f.size*g.stride),0,f.alarm>0?4.2:2.8);
     if(f.wave>.008)f.phase=(f.phase+dt*Math.PI*2*f.tailHz)%(Math.PI*2);
-    f.tailAmplitude=(f.kind==='clown'?.060:.095)*f.wave;
-    const rowing=f.kind==='clown'?1:clamp(1-f.speed/.42,.18,1);
+    f.tailAmplitude=(f.kind==='gumdrop'?.060:.095)*f.wave;
+    const rowing=f.kind==='gumdrop'?1:clamp(1-f.speed/.42,.18,1);
     f.rowing+=(rowing-f.rowing)*ease(6);
-    f.pectoral=(f.pectoral+dt*Math.PI*2*(g.pectoral+(f.kind==='clown'?1.4:.5)*f.speed))%(Math.PI*2);
+    f.pectoral=(f.pectoral+dt*Math.PI*2*(g.pectoral+(f.kind==='gumdrop'?1.4:.5)*f.speed))%(Math.PI*2);
     this._relative.copy(f.steer).addScaledVector(h,-h.dot(f.steer));
     limitVector(this._relative,g.slip*(1-clamp((f.speed-.08)/.3,0,1)));
     f.velocity.copy(this._flow).addScaledVector(h,f.speed).add(this._relative);
@@ -226,7 +226,7 @@ export class ReefSimulation {
       // The terminal male's U-swim: a fast dive under the harem and back up the far side.
       // Shapiro's counts make this and the nose rush male-only — a female performs them at
       // effectively zero rate — so it is the single movement that sexes the fish on sight.
-      if(f.kind==='anthias'&&!f.rank){
+      if(f.kind==='rosebud'&&!f.rank){
         f.show-=dt;
         if(f.show<=0){f.display=USWIM;f.show=11+this.random()*13;}
         if(f.display>0)f.display=Math.max(0,f.display-dt);
@@ -245,8 +245,8 @@ export class ReefSimulation {
         // goal sits inside the colony's own envelope, so the pod presses down onto the
         // branches and the obstacle field is what stops it, rather than hovering politely
         // above the coral it is supposed to be hiding in.
-        if(f.kind==='clown')this._desired.set(HOST.x+(f.rank-1)*.44,HOST.y+.50,HOST.z+.30);
-        else{const s=this.shoals[f.shoal].shelter;this._desired.set(s.x+(p.x-s.x)*.30,s.y+(f.kind==='chromis'?.55:1.05),s.z+(p.z-s.z)*.30);}
+        if(f.kind==='gumdrop')this._desired.set(HOST.x+(f.rank-1)*.44,HOST.y+.50,HOST.z+.30);
+        else{const s=this.shoals[f.shoal].shelter;this._desired.set(s.x+(p.x-s.x)*.30,s.y+(f.kind==='mint'?.55:1.05),s.z+(p.z-s.z)*.30);}
         goal=this._desired;
       }else if(f.display>0){
         f.state='display';
@@ -254,16 +254,16 @@ export class ReefSimulation {
         this._desired.set(s.centre.x+(k*2-1)*2.1,s.centre.y+.40-Math.sin(k*Math.PI)*1.75,s.centre.z+.30);
         goal=this._desired;
       }else{
-        f.state=f.hold?'bathe':f.kind!=='clown'?'roam':'forage';
+        f.state=f.hold?'bathe':f.kind!=='gumdrop'?'roam':'forage';
         for(const item of this.food)if(item.active){
-          if(f.kind==='clown'&&((item.position.x-HOST.x)**2+(item.position.y-HOST.y-.7)**2+(item.position.z-HOST.z)**2)>10)continue;
+          if(f.kind==='gumdrop'&&((item.position.x-HOST.x)**2+(item.position.y-HOST.y-.7)**2+(item.position.z-HOST.z)**2)>10)continue;
           const d=p.distanceToSquared(item.position);if(d<nearest){nearest=d;food=item;goal=item.position;}
         }
         if(food)f.state='feed';
       }
       // A fish being cleaned, or one wallowing in the tentacles, is barely swimming.
-      if(f.kind!=='clown'&&f.alarm<=0)goal=this.travelGoal(f,goal,dt);
-      const topSpeed=(f.kind==='clown'?.59:f.kind==='anthias'?.98:1.10)*f.cruise*(f.alarm>0?1.65:f.display>0?1.5:food?1.3:f.hold&&p.distanceToSquared(f.goal)<.5?.16:1);
+      if(f.kind!=='gumdrop'&&f.alarm<=0)goal=this.travelGoal(f,goal,dt);
+      const topSpeed=(f.kind==='gumdrop'?.59:f.kind==='rosebud'?.98:1.10)*f.cruise*(f.alarm>0?1.65:f.display>0?1.5:food?1.3:f.hold&&p.distanceToSquared(f.goal)<.5?.16:1);
       this._delta.subVectors(goal,p);const dist=this._delta.length();
       this._force.copy(this._delta).multiplyScalar(dist>1e-5?Math.min(topSpeed,dist*.68)/dist:0);
       this._force.sub(this._flow); // swim velocity relative to the moving water
@@ -271,9 +271,9 @@ export class ReefSimulation {
       for(let j=0;j<this.fish.length;j++)if(j!==index){
         const other=this.fish[j],q=old[j].p;this._delta.subVectors(p,q);const d2=this._delta.lengthSq();
         // Open-water fish keep well over a body length between them; the clownfish crowd.
-        const personal=(f.size+other.size)*(f.kind==='clown'?.46:.68);
-        if(d2<personal*personal&&d2>1e-8)this._sep.addScaledVector(this._delta,(personal-Math.sqrt(d2))/d2*(f.kind==='clown'&&other.kind==='clown'&&f.rank>other.rank?1.9:1.1));
-        if(f.kind!=='clown'&&other.kind===f.kind&&d2<7.84&&d2>.18){this._cohesion.add(q);this._align.add(old[j].v);neighbors++;}
+        const personal=(f.size+other.size)*(f.kind==='gumdrop'?.46:.68);
+        if(d2<personal*personal&&d2>1e-8)this._sep.addScaledVector(this._delta,(personal-Math.sqrt(d2))/d2*(f.kind==='gumdrop'&&other.kind==='gumdrop'&&f.rank>other.rank?1.9:1.1));
+        if(f.kind!=='gumdrop'&&other.kind===f.kind&&d2<7.84&&d2>.18){this._cohesion.add(q);this._align.add(old[j].v);neighbors++;}
         // Only a fresh bolt recruits, so the alarm cannot circulate back round the school
         // and hold it up indefinitely.
         if(f.alarm<=0&&f.spook<=0&&other.kind===f.kind&&old[j].alarm>1.9&&d2<4.0)f.spook=.055;
@@ -286,12 +286,12 @@ export class ReefSimulation {
         this._force.addScaledVector(this._cohesion,.035).addScaledVector(this._align,.20);
       }
       // Non-host fish avoid cnidarian tentacles; residents can enter the living crown.
-      if(f.kind!=='clown'){
+      if(f.kind!=='gumdrop'){
         this._delta.set(p.x-HOST.x,(p.y-HOST.y-.55)*1.2,p.z-HOST.z);
         const d=this._delta.length();if(d<2.4&&d>.001)this._force.addScaledVector(this._delta,(2.4-d)/d*1.9);
       }
       // Anticipatory ellipsoid avoidance before position integration.
-      const own=f.kind==='chromis'?SHELTER+f.shoal:-1;
+      const own=f.kind==='mint'?SHELTER+f.shoal:-1;
       for(let k=0;k<REEF_BOUNDS.length;k++){
         const o=REEF_BOUNDS[k],keep=k===own?1.22-.38*f.shelterAccess:1.22;
         const mx=o[3]+f.size*.26,my=o[4]+f.size*.25,mz=o[5]+f.size*.25;
@@ -321,7 +321,7 @@ export class ReefSimulation {
       // percula rows with its pectorals and the body rocks against the stroke. The waddle
       // is the species' walk, not a symptom of hurrying, so it rides on the bank angle at
       // the pectoral beat rather than replacing it.
-      f.roll=f.bank+(f.kind==='clown'?Math.sin(f.pectoral)*.075:0);
+      f.roll=f.bank+(f.kind==='gumdrop'?Math.sin(f.pectoral)*.075:0);
       if(food&&p.distanceToSquared(food.position)<(f.size*.42)**2){food.active=false;this.consumed++;f.goalTimer=0;}
     }
   }

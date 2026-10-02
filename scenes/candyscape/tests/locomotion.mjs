@@ -33,14 +33,14 @@ for(const seed of [36719,42,9001]){
       assert.ok(f.position.x>TANK.left&&f.position.x<TANK.right&&f.position.z>TANK.back&&f.position.z<TANK.front&&f.position.y<TANK.surface);
       // Includes the very first rendered frame: spawning inside coral caused a .3-unit snap.
       assert.ok(step<.045,`Fish ${i} snapped ${step} units at ${sim.time}, seed ${seed}`);
-      if(f.kind==='clown'){maxHost=Math.max(maxHost,f.position.distanceTo(new THREE.Vector3(HOST.x,HOST.y,HOST.z)));return;}
+      if(f.kind==='gumdrop'){maxHost=Math.max(maxHost,f.position.distanceTo(new THREE.Vector3(HOST.x,HOST.y,HOST.z)));return;}
       if(f.beat)s.beats++;else if(f.tailAmplitude<.008&&f.speed>.25)s.coasts++;
       if(f.tailAmplitude>.035){s.active++;s.hz+=f.tailHz;if(f.velocity.length()<.12)s.idleTail++;}
       currentAt(f.position,sim.time,flow);relative.copy(f.velocity).sub(flow);
       if(relative.length()>.28){s.moving++;heading.set(Math.cos(f.yaw)*Math.cos(f.pitch),Math.sin(f.pitch),-Math.sin(f.yaw)*Math.cos(f.pitch));if(heading.dot(relative)/relative.length()>.94)s.aligned++;}
     });
   }
-  const free=stats.filter((_,i)=>sim.fish[i].kind!=='clown');
+  const free=stats.filter((_,i)=>sim.fish[i].kind!=='gumdrop');
   for(const s of free){
     assert.ok(s.max.x-s.min.x>10,'Every non-clownfish must traverse most of the reef width');
     assert.ok(s.max.y-s.min.y>1.8&&s.max.z-s.min.z>2,'Roaming must include height and depth, not a horizontal rail');
@@ -55,7 +55,7 @@ for(const seed of [36719,42,9001]){
 }
 // A frightened chromis may enter its own shelter. Returning the avoidance envelope
 // to full size must be gradual; an instantaneous radius change used to eject the fish.
-const startled=new ReefSimulation(42),refugeFish=startled.fish.find(f=>f.kind==='chromis');
+const startled=new ReefSimulation(42),refugeFish=startled.fish.find(f=>f.kind==='mint');
 const before=startled.fish.map(f=>f.position.clone());let maxAccess=0;
 for(let k=0;k<15/FIXED_STEP;k++){
   const pointer=k>=120&&k<210?{position:refugeFish.position.clone(),speed:8}:null;
@@ -68,7 +68,7 @@ for(let k=0;k<15/FIXED_STEP;k++){
 }
 assert.ok(maxAccess>.95&&refugeFish.shelterAccess<.001,'Shelter access must open and then close smoothly');
 // A controlled zero-demand fish settles with absolutely no renderer-added oscillation.
-const still=new ReefSimulation(),fish=still.fish.find(f=>f.kind==='chromis'),zero=new THREE.Vector3();
+const still=new ReefSimulation(),fish=still.fish.find(f=>f.kind==='mint'),zero=new THREE.Vector3();
 still._flow.set(0,0,0);
 for(let k=0;k<600;k++)still.swim(fish,zero,FIXED_STEP);
 assert.ok(fish.tailAmplitude<1e-6&&fish.speed<1e-6);

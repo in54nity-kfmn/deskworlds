@@ -5,7 +5,7 @@ register('../../riverscape/tests/three-loader.mjs',import.meta.url);
 const { makeFishGeometry }=await import('../src/fish-model.js');
 import { TANK } from '../src/layout.js';
 
-for(const kind of ['clown','chromis','anthias']){
+for(const kind of ['gumdrop','mint','rosebud']){
   const geo=makeFishGeometry(kind),count=geo.attributes.position.count;
   assert.equal(geo.attributes.part.count,count,kind+' anatomical attribute alignment');
   for(const attr of Object.values(geo.attributes))assert.ok([...attr.array].every(Number.isFinite),kind+' finite vertex attributes');

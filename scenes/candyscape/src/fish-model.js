@@ -27,7 +27,7 @@ function join(parts) {
 const SNOUT=.54,RAYS=11;
 const KNOTS=[0,.05,.12,.20,.30,.42,.55,.68,.80,.90,1];
 const SPECIES={
-  clown:{
+  gumdrop:{
     len:.98,
     back:[.046,.142,.206,.234,.246,.246,.226,.188,.134,.082,.045],
     belly:[.036,.124,.194,.232,.248,.246,.222,.172,.114,.066,.038],
@@ -46,7 +46,7 @@ const SPECIES={
     pectoral:{base:[[.272,.32],[.305,.00],[.338,-.32]],tip:[[.378,.022,.108],[.456,-.030,.134],[.508,-.116,.124],[.468,-.184,.094],[.388,-.166,.064]]},
     pelvic:{base:[[.365,-.88],[.400,-.98]],tip:[[.432,-.316,.040],[.508,-.392,.048],[.566,-.330,.032]]},
   },
-  chromis:{
+  mint:{
     len:.82,
     // Sources disagree on depth — 35–38% of standard length in the measured Lakshadweep
     // series, nearer 48% in the classic literature — so this takes 40%, which is what a
@@ -67,7 +67,7 @@ const SPECIES={
     pectoral:{base:[[.252,.30],[.285,.00],[.318,-.30]],tip:[[.350,.016,.066],[.418,-.024,.082],[.460,-.094,.078],[.428,-.144,.056],[.360,-.130,.040]]},
     pelvic:{base:[[.345,-.88],[.380,-.98]],tip:[[.410,-.238,.028],[.472,-.292,.034],[.518,-.246,.022]]},
   },
-  anthias:{
+  rosebud:{
     len:1.14,
     back:[.018,.078,.136,.182,.206,.210,.194,.160,.114,.070,.037],
     belly:[.016,.070,.126,.172,.198,.200,.180,.140,.094,.056,.031],
@@ -194,7 +194,7 @@ function eye(kind,side) {
   return part(g,4);
 }
 
-export function makeFishGeometry(kind='clown') {
+export function makeFishGeometry(kind='gumdrop') {
   const s=SPECIES[kind],parts=[bodyGeometry(kind)];
   parts.push(fin(...median(kind,s.dorsal,true),1,20));
   parts.push(fin(...median(kind,s.anal,false),1,13));
@@ -211,7 +211,7 @@ export function makeFishGeometry(kind='clown') {
 // iridescent layer are written against uv: uv.x is the axial fraction u, uv.y the arc
 // fraction from the dorsal midline (0) to the ventral (1).
 const SKIN={
-  clown:`
+  gumdrop:`
     // Orange from xanthophores across the whole flank, only a shade deeper along the back.
     vec3 skin=mix(vec3(.74,.125,.005),vec3(1.00,.270,.010),smoothstep(.06,.46,band));
     skin=mix(skin,vec3(1.00,.420,.060),smoothstep(.66,.98,band));
@@ -228,7 +228,7 @@ const SKIN={
     float edge=.013+.013*vTrim.x,aa=max(fwidth(d),.0012);
     skin=mix(skin,vec3(.009,.012,.016),1.-smoothstep(edge-aa,edge+aa,d));
     skin=mix(skin,vec3(.86,.90,.96),1.-smoothstep(-aa,aa,d));`,
-  chromis:`
+  mint:`
     // A blue-green chromis is mostly green: pale apple-green over the back washing out
     // almost to white at the belly, with the blue held in the peduncle and in the
     // iridophore flare rather than in the base coat. Measured reflectance for the species
@@ -248,7 +248,7 @@ const SKIN={
     skin=mix(skin,skin*vec3(.60,.94,1.34),vTrim.x*.52);
     // The nesting male goes yellowish while he tends his patch of rubble.
     skin=mix(skin,skin*vec3(1.55,1.14,.40),vTrim.y*.70);`,
-  anthias:`
+  rosebud:`
     // Golden orange, deepest along the back and paling to a yellow belly.
     vec3 skin=mix(vec3(.84,.170,.006),vec3(.92,.330,.018),smoothstep(.05,.40,band));
     skin=mix(skin,vec3(.98,.570,.135),smoothstep(.56,.96,band));
@@ -269,7 +269,7 @@ const SKIN={
 // `below`, `paired` and `pelvic` name which fin this fragment is on, because the median
 // fins share one sheet and a caudal is not painted like a dorsal.
 const FINS={
-  clown:`
+  gumdrop:`
     // Orange membrane with a heavy black margin on the median fins, a translucent rim
     // outside it, and pelvics that are all but solid black. A flat membrane picks up far
     // more of the blue ambient than the curved flank beside it, so an orange mixed to
@@ -283,13 +283,13 @@ const FINS={
     // The trunk bar does not stop at the skin: it carries on up the soft dorsal and down
     // the anal, which is why those two fins look notched white on a photograph.
     web=mix(web,vec3(.82,.86,.92),(1.-tail)*(1.-smoothstep(.030,.070,abs(axial-.520)))*(1.-smoothstep(.40,.92,span)));`,
-  chromis:`
+  mint:`
     // Hyaline fins the colour of the water it hovers in. Only the outer edges of the
     // caudal lobes take the livery; a blackish dorsal margin, or a caudal that ran out
     // into dark filaments, would make this C. atripectoralis instead.
     vec3 web=mix(vec3(.230,.620,.470),vec3(.520,.820,.740),span);
     web=mix(web,vec3(.090,.500,.540),tail*smoothstep(.34,1.,span)*smoothstep(.34,.04,min(vSkinUv.x,1.-vSkinUv.x)));`,
-  anthias:`
+  rosebud:`
     // Golden membrane on both sexes. The male carries it rose instead, and adds a dusky
     // blue anal, a red blotch on the pectoral and a violet edge along both lobes of the
     // lyre — the three marks that separate a terminal male from a big female.
@@ -300,15 +300,15 @@ const FINS={
 };
 // Guanine platelets under the scales: a thin-film flare that only shows off normal. It is
 // the whole point of a chromis and barely there on the barred clownfish.
-const SHEEN={clown:'vec3(.080,.085,.125)',chromis:'vec3(.090,.330,.430)',anthias:'vec3(.230,.100,.290)'};
+const SHEEN={gumdrop:'vec3(.080,.085,.125)',mint:'vec3(.090,.330,.430)',rosebud:'vec3(.230,.100,.290)'};
 // The iris is the fastest species mark at tank distance. percula's is bright orange, and
 // ocellaris' greyish one is exactly how the trade tells the two apart; a damsel's is a
 // silver ring round a large dark pupil; both sexes of sea goldie carry the metallic
 // pink-violet orbital ring that runs straight on into the cheek stripe.
 const EYE={
-  clown:'vec3 iris=vec3(.90,.380,.030),rim=vec3(.10,.035,.012);',
-  chromis:'vec3 iris=vec3(.52,.58,.56),rim=vec3(.030,.110,.120);',
-  anthias:'vec3 iris=vec3(.86,.560,.120),rim=mix(vec3(.40,.16,.42),vec3(.46,.10,.20),vTrim.y);',
+  gumdrop:'vec3 iris=vec3(.90,.380,.030),rim=vec3(.10,.035,.012);',
+  mint:'vec3 iris=vec3(.52,.58,.56),rim=vec3(.030,.110,.120);',
+  rosebud:'vec3 iris=vec3(.86,.560,.120),rim=mix(vec3(.40,.16,.42),vec3(.46,.10,.20),vTrim.y);',
 };
 
 /** The skin, fin and eye shading for one species. Every animal of that species shares
@@ -323,7 +323,7 @@ function fishMaterial(kind) {
   // percula rows with its pectorals hard enough to drive the whole fish and only folds
   // them in for a caudal burst; the two open-water species use theirs to trim and hover,
   // so their stroke is smaller than the tail that carries them.
-  const stroke=kind==='clown'?[.050,.034]:kind==='chromis'?[.024,.010]:[.030,.014];
+  const stroke=kind==='gumdrop'?[.050,.034]:kind==='mint'?[.024,.010]:[.030,.014];
   return underwater(new THREE.MeshStandardMaterial({roughness:.38,metalness:.02,side:THREE.DoubleSide,transparent:true,forceSinglePass:true}),{
     key:`fish-${kind}`,transmission:.085,
     vertex:`attribute float part;attribute vec4 aFishTrim;attribute vec4 aFishGait;varying float vPart;varying vec3 vAnatomy;varying vec2 vSkinUv;varying vec2 vTrim;
@@ -343,7 +343,7 @@ function fishMaterial(kind) {
         transformed.z+=sign(position.z)*row*hinge*${n(stroke[0])};
         transformed.x-=row*hinge*hinge*${n(stroke[1])};
       }
-      ${kind==='anthias'?`// Both sexes carry the lyre and a prolonged third dorsal spine; on the terminal
+      ${kind==='rosebud'?`// Both sexes carry the lyre and a prolonged third dorsal spine; on the terminal
       // male the lobe tips run out a little further and that spine stands about twice the
       // fin height, not the whips the species is often drawn with.
       if(part>.5&&part<1.5){
@@ -368,7 +368,7 @@ function fishMaterial(kind) {
         vec2 cell=vec2(u*${n(rows)},band*${n(files)});cell.x+=mod(floor(cell.y),2.)*.5;
         vec2 tile=fract(cell)-.5;float lip=length(vec2(tile.x+.5,tile.y*1.15));
         scaleEdge=smoothstep(.30,.0,abs(lip-.62))*(1.-smoothstep(.40,1.05,max(fwidth(cell.x),fwidth(cell.y))))*smoothstep(.08,.24,band);
-        skin*=1.-${kind==='chromis'?'.060':'.035'}*scaleEdge;
+        skin*=1.-${kind==='mint'?'.060':'.035'}*scaleEdge;
         // Countershading and a per-animal shift, so no two of a species read identical.
         skin*=1.-.34*(1.-smoothstep(0.,.11,band));
         skin*=vec3(.93+.14*vTrim.x,.96+.08*vTrim.x,1.03-.10*vTrim.x);
@@ -430,7 +430,7 @@ function fishMaterial(kind) {
  */
 export function createFishSchool(scene,simulation){
   const groups=[];
-  for(const kind of ['clown','chromis','anthias']){
+  for(const kind of ['gumdrop','mint','rosebud']){
     const fish=simulation.fish.filter(f=>f.kind===kind),geometry=makeFishGeometry(kind);
     const data=new Float32Array(fish.length*4),attribute=new THREE.InstancedBufferAttribute(data,4).setUsage(THREE.DynamicDrawUsage);
     const gait=new Float32Array(fish.length*4),gaitAttribute=new THREE.InstancedBufferAttribute(gait,4).setUsage(THREE.DynamicDrawUsage);
@@ -441,7 +441,7 @@ export function createFishSchool(scene,simulation){
     // biggest fish on an anemone is the blackest. Trim w marks the sexed-up individual:
     // the terminal male anthias, and the chromis holding the nest.
     const largest=Math.max(...fish.map(f=>f.size));
-    groups.push({fish,data,attribute,gait,gaitAttribute,mesh,trim:fish.map((f,i)=>[kind==='clown'?f.size/largest:(i*.6180339887+.31)%1,(kind==='anthias'||kind==='chromis')&&f.rank===0?1:0])});
+    groups.push({fish,data,attribute,gait,gaitAttribute,mesh,trim:fish.map((f,i)=>[kind==='gumdrop'?f.size/largest:(i*.6180339887+.31)%1,(kind==='rosebud'||kind==='mint')&&f.rank===0?1:0])});
   }
   const dummy=new THREE.Object3D(),euler=new THREE.Euler(0,0,0,'YZX');
   return {update(){
