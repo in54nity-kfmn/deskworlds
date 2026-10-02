@@ -32,24 +32,24 @@ window.scenePower=battery=>{const next=Boolean(battery);if(next===onBattery)retu
 
 async function start(){
   const renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:false,powerPreference:'low-power',preserveDrawingBuffer:false});
-  renderer.setPixelRatio(1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
+  renderer.setPixelRatio(1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
   renderer.shadowMap.enabled=true;renderer.shadowMap.needsUpdate=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.info.autoReset=false;
-  const scene=new THREE.Scene();scene.background=new THREE.Color('#04101d');
+  const scene=new THREE.Scene();scene.background=new THREE.Color('#0d1a3a');
   // Reef LEDs: a warm-white key from overhead, so the tops of rock, coral and fish catch
   // the light and everything under an edge falls into the water's blue, with a violet
   // actinic wash from above. The ground half of the hemisphere stands in for the bounce off
   // the bright aragonite bed, so the shaded side of a coral branch reads as tissue in shadow
   // rather than a black stick. The sky half is the water column itself, deep blue, and kept
   // low: what the lamp does not reach stays dark.
-  scene.add(new THREE.HemisphereLight('#3c56c0','#4a4636',.42));
-  const sun=new THREE.DirectionalLight('#ffdfba',4.3);sun.position.set(LAMP.x,LAMP.y,LAMP.z).multiplyScalar(LAMP_RANGE);sun.target.position.set(0,0,0);sun.castShadow=true;
+  scene.add(new THREE.HemisphereLight('#8ab8f0','#ffc0d8',.60));
+  const sun=new THREE.DirectionalLight('#fff0f6',4.3);sun.position.set(LAMP.x,LAMP.y,LAMP.z).multiplyScalar(LAMP_RANGE);sun.target.position.set(0,0,0);sun.castShadow=true;
   sun.shadow.mapSize.set(1536,1536);Object.assign(sun.shadow.camera,{left:-12,right:12,top:10,bottom:-9,near:1,far:43});sun.shadow.bias=-.0007;sun.shadow.normalBias=.018;sun.shadow.radius=2;sun.shadow.intensity=.86;
   scene.add(sun,sun.target);
-  const actinic=new THREE.DirectionalLight('#4f6dff',.78);actinic.position.set(3,12,-2);scene.add(actinic);
+  const actinic=new THREE.DirectionalLight('#ff9ad8',.7);actinic.position.set(3,12,-2);scene.add(actinic);
   const bounce=new THREE.DirectionalLight('#7f8fd0',.18);bounce.position.set(3,6,8);scene.add(bounce);
   // The lamp's light scattered forward by the water behind a subject comes back toward the
   // camera from the far side: a cool rim on the backs of fish and along the crests of rock.
-  const rim=new THREE.DirectionalLight('#7fc4ff',1.1);rim.position.set(1.5,6,-9);scene.add(rim);
+  const rim=new THREE.DirectionalLight('#9ff0ff',1.1);rim.position.set(1.5,6,-9);scene.add(rim);
   // The key light's shadow map, read by the motes so they go dark where the lamp is
   // blocked. The texture only exists once the first beauty pass has drawn it, so render()
   // fills it in.
@@ -77,7 +77,7 @@ async function start(){
   const envData=new Uint8Array(128*64*4);
   for(let y=0;y<64;y++)for(let x=0;x<128;x++){
     const top=1-y/63,glow=Math.exp(-(((top-.86)/.13)**2));const i=(y*128+x)*4;
-    envData[i]=5+glow*186;envData[i+1]=7+glow*208;envData[i+2]=24+glow*231;envData[i+3]=255;
+    envData[i]=14+glow*220;envData[i+1]=10+glow*200;envData[i+2]=34+glow*221;envData[i+3]=255;
   }
   const environment=new THREE.DataTexture(envData,128,64);environment.mapping=THREE.EquirectangularReflectionMapping;environment.colorSpace=THREE.SRGBColorSpace;environment.needsUpdate=true;scene.environment=environment;scene.environmentIntensity=.30;
   createBackdrop(scene);

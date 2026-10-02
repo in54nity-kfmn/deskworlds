@@ -43,7 +43,9 @@ export async function createTerrain(scene){
       vec2 dPhase=vec2(.34,.94)*10.5+1.1*cos(warpA)*vec2(.83,1.7*.61*cos(bed.y*.61))+.6*cos(warpB)*vec2(-.29,1.37),dCross=vec2(.91,-.41)*7.3+.9*cos(warpB)*vec2(-.29,1.37);
       float ripple=sin(phase)+.25*sin(2.*phase+.8)+.6*sin(cross);
       vec2 rippleSlope=.10*vShade*((cos(phase)+.5*cos(2.*phase+.8))*dPhase+.6*cos(cross)*dCross);`,
-    color:`diffuseColor.rgb=mix(vec3(.42,.33,.23),vec3(.92,.875,.78),smoothstep(.42,.92,reefGrain.r))*(.90+.08*drift)*(.90+.055*ripple)*vShade;`,
+    color:`diffuseColor.rgb=mix(vec3(.80,.70,.78),vec3(1.,.97,.96),smoothstep(.42,.92,reefGrain.r))*(.90+.08*drift)*(.90+.055*ripple)*vShade;
+      // Sugar crystals: one grain in a few hundred catches the lamp.
+      diffuseColor.rgb+=vec3(.9,.8,1.)*.5*step(.985,fract(sin(dot(floor(bed*90.),vec2(12.9898,78.233)))*43758.5453));`,
     surfaceNormal:`vec2 grainSlope=reefGrain.gb*2.-1.;
       normal=normalize(mat3(viewMatrix)*normalize(normalize(vBedNormal)+vec3(grainSlope.x*.7-rippleSlope.x,0.,grainSlope.y*.7-rippleSlope.y)));`});
   // The bed runs past every frame edge, like Riverbed's, so no rim or wall is ever seen.
@@ -68,12 +70,12 @@ export async function createTerrain(scene){
     vec3 rx=texture2D(reefRelief,q.yz).xyz,ry=texture2D(reefRelief,q.xz).xyz,rz=texture2D(reefRelief,q.xy).xyz;
     float relief=min(crust.r,fine.r*.9+.12),speck=rx.z*w.x+ry.z*w.y+rz.z*w.z;
     float cover=smoothstep(.47,.66,fine.g*.65+crust.g*.35+(vSurface.g-.5)*.5),hue=clamp(vSurface.b+(crust.b-.45)*.9+(fine.b-.5)*.5,0.,1.);
-    vec3 coralline=mix(mix(vec3(.17,.025,.19),vec3(.36,.035,.16),smoothstep(.05,.55,hue)),vec3(.42,.08,.10),smoothstep(.6,1.,hue));
-    coralline=mix(coralline,vec3(.42,.17,.27),fine.g*fine.r*.4);
-    vec3 turf=mix(mix(vec3(.090,.052,.026),vec3(.085,.074,.018),crust.b),vec3(.050,.030,.022),fine.b*(1.-crust.b));
+    vec3 coralline=mix(mix(vec3(.62,.42,.78),vec3(.95,.55,.72),smoothstep(.05,.35,hue)),vec3(.55,.85,.72),smoothstep(.45,.75,hue));
+    coralline=mix(coralline,vec3(.98,.80,.62),fine.g*fine.r*.4);
+    vec3 turf=mix(mix(vec3(.80,.58,.50),vec3(.50,.74,.62),crust.b),vec3(.66,.50,.62),fine.b*(1.-crust.b));
     vec3 rock=mix(turf,coralline,cover);
-    rock=mix(rock,mix(vec3(.30,.34,.07),vec3(.40,.22,.30),step(.55,fine.b)),speck*.85);
-    diffuseColor.rgb=rock*mix(.05,1.,smoothstep(.36,.68,relief))*(.18+.82*vSurface.r*vSurface.r*vSurface.r);`,
+    rock=mix(rock,mix(vec3(.98,.94,.55),vec3(.98,.60,.85),step(.55,fine.b)),speck*.85);
+    diffuseColor.rgb=.80*rock*mix(.35,1.,smoothstep(.36,.68,relief))*(.40+.60*vSurface.r*vSurface.r*vSurface.r);`,
     surfaceNormal:`vec3 rn=normalize(vRockNormal);
       vec3 rq=vReefWorld*4.0;
       vec3 perturb=vec3(0.,rx.xy*2.-1.)*w.x+vec3(ry.x*2.-1.,0.,ry.y*2.-1.)*w.y+vec3(rz.xy*2.-1.,0.)*w.z;

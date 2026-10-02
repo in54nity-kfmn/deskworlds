@@ -93,7 +93,9 @@ vec3 reefIrradiance(vec3 p,float t){
 // that veil is the whole depth cue the tank has. The path is measured from the front
 // glass, because every camera stands in air in front of the tank. One length and one
 // absorption serve every surface, the motes, the back wall and the post pass's own march.
-export const ABSORB=[.108,.052,.030];
+// Candy water is clearer and far more neutral than a reef's: the reef sits 15–18 units from
+// the lens, and reef-strength red loss turned every peach and mint on it to lavender.
+export const ABSORB=[.045,.034,.030];
 export const extinctionGLSL=`
 float reefAirPath(vec3 eye,vec3 ray){return eye.z>${n(TANK.front)}?(eye.z-${n(TANK.front)})/max(-ray.z,.05):0.;}
 float reefWaterPath(vec3 p,vec3 eye){vec3 ray=p-eye;float d=length(ray);return max(0.,d-reefAirPath(eye,ray/max(d,1e-5)));}
@@ -118,7 +120,7 @@ float reefShafts(vec3 p,float t){
 }
 vec3 reefInscatter(vec3 p,float t,float lit){
   float depth=clamp(${n(h)}-p.y,0.,12.),sky=exp(-.48*depth);
-  return mix(vec3(.00012,.0007,.0030),vec3(.0009,.0034,.0082),sky)+vec3(.0030,.0070,.0110)*reefShafts(p,t)*lit*sky;
+  return mix(vec3(.0016,.0024,.0052),vec3(.0042,.0068,.0112),sky)+vec3(.0060,.0070,.0100)*reefShafts(p,t)*lit*sky;
 }`;
 // The underside of the surface, seen from below at a grazing angle. Beyond the critical
 // angle it is a mirror for the water under it; where the pump chop tilts a facet far
@@ -135,8 +137,8 @@ vec3 reefSurfaceUnderside(vec3 s,vec3 dir,float distance,float t){
   ${CHOP.map((c,i)=>`slope+=fine*${n(c.slope)}*vec2(${n(c.dx)},${n(c.dz)})*cos(${n(c.k)}*dot(q,vec2(${n(c.dx)},${n(c.dz)}))+${n(c.speed)}*t*.1+${i*1.7+.4}*sin(q.y*.9+q.x*.4));`).join('\n')}
   vec3 facet=normalize(vec3(-slope.x,1.,-slope.y));
   float window=smoothstep(.30,.70,dot(dir,facet));
-  vec3 mirror=vec3(.035,.13,.26)*(.75+.5*dot(slope,vec2(.6,.8)));
-  return mix(mirror,vec3(.30,.62,.80),window);
+  vec3 mirror=vec3(.10,.12,.30)*(.75+.5*dot(slope,vec2(.6,.8)));
+  return mix(mirror,vec3(.70,.75,.95),window);
 }`;
 // The key light's own shadow map, read by whatever lights the water itself: a mote in
 // the arch's shadow stays dark because the lamp never reached it. The map is three's
