@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "license": "MIT",
   "type": "module",
-  "description": "Living worlds for your macOS desktop: Riverbed, a planted river, Coral reef, a coral reef, Betta, a single betta, and Plasma globe, a plasma globe in a dark room.",
+  "description": "Living worlds for your macOS desktop: Riverbed, a planted river, Coral reef, a coral reef, Betta, a single betta, Plasma globe, a plasma globe in a dark room, and Candyscape, a candy-coloured reef.",
   "scripts": {
     "start": "node serve.mjs",
     "wallpaper": "sh wallpaper/install.sh",

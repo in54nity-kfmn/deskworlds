@@ -6,7 +6,7 @@
 
 Have you always wanted a little living world on your desktop? Now you can have one :)
 
-Each world is a live 3D scene that reacts to your cursor. There are four so far. Three are underwater: **Riverbed**, a planted river where a school of fish competes for food, **Coral reef**, a coral reef with clownfish and cleaner shrimp, and **Betta**, a single halfmoon betta on a black background. The fourth, **Plasma globe**, is a plasma lamp glowing on a table in a dark room. Bring the cursor toward the glass and the plasma reaches for it like it would for a fingertip.
+Each world is a live 3D scene that reacts to your cursor. There are five so far. Three are underwater: **Riverbed**, a planted river where a school of fish competes for food, **Coral reef**, a coral reef with clownfish and cleaner shrimp, and **Betta**, a single halfmoon betta on a black background. The fourth, **Plasma globe**, is a plasma lamp glowing on a table in a dark room. Bring the cursor toward the glass and the plasma reaches for it like it would for a fingertip. The fifth, **Candyscape**, is Coral reef's tank in candy colours with four candy fish, and a fish sheds a burst of sparkles when the cursor rests near it.
 
 Every scene is rendered live with Three.js and WebGL2. Everything runs locally, with no account or internet connection needed after setup. Desktop wallpaper support is **macOS only** for now; all four worlds also run in a browser. The Mac app starts with Riverbed and remembers the world you pick from its menu.
 
@@ -34,8 +34,8 @@ You don't need Node.js for the wallpaper. If you already have it, `npm run wallp
 
 Click the Deskworlds icon in the menu bar:
 
-- **World** switches every screen between Riverbed, Coral reef, Betta and Plasma globe and remembers your choice.
-- **Feed** drops ten pellets into each screen's scene, eight in Coral reef or six to eight in Betta. Uneaten pellets dissolve after 20–40 seconds of running simulation time in Riverbed, 36 seconds in Coral reef and 30 seconds in Betta, measured from when they touch the water. Plasma globe has nothing to feed, so the item is dimmed there.
+- **World** switches every screen between Riverbed, Coral reef, Betta, Plasma globe and Candyscape and remembers your choice.
+- **Feed** drops ten pellets into each screen's scene, eight in Coral reef and Candyscape or six to eight in Betta. Uneaten pellets dissolve after 20–40 seconds of running simulation time in Riverbed, 36 seconds in Coral reef and Candyscape and 30 seconds in Betta, measured from when they touch the water. Plasma globe has nothing to feed, so the item is dimmed there.
 - **Pause / Resume** controls the animation. Your choice is remembered across restarts.
 - **Quit** closes the app until you open it again or next sign in.
 
