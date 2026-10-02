@@ -8,6 +8,9 @@ import { currentAt, waterTime } from './water.js';
  *  no depth write, and they ride the tank's current and rise a little like fine bubbles. */
 export const SPARKLE_LIFE=1.0;
 const SPEED=[.35,.85],DRAG=2.6,BUOYANCY=.55;
+// Point size in pixels is scale/depth, clamped. The fish swim 15–18 units from the lens, so
+// the scale is set for a glint of about a dozen pixels there.
+export const SPARKLE_SIZE={scale:200,min:4,max:28};
 // Each species sheds its own colour.
 export const SPARKLE_COLORS={gumdrop:[1,.62,.25],mint:[.55,1,.85],rosebud:[1,.6,.85],lollipop:[.85,1,.4]};
 
@@ -54,7 +57,7 @@ export function createSparkles(scene,simulation){
       void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
         vColor=color;vLife=life;
         // A glint flares as it leaves the fish and shrinks as it fades.
-        gl_PointSize=life>0.?clamp(30./(-mv.z),2.,14.)*(.55+.45*life)*pixelRatio:0.;}`,
+        gl_PointSize=life>0.?clamp(${SPARKLE_SIZE.scale.toFixed(1)}/(-mv.z),${SPARKLE_SIZE.min.toFixed(1)},${SPARKLE_SIZE.max.toFixed(1)})*(.55+.45*life)*pixelRatio:0.;}`,
     fragmentShader:`varying vec3 vColor;varying float vLife;
       void main(){vec2 c=gl_PointCoord-.5;float r=dot(c,c);
         // A soft core with a four-point star across it: reads as a sparkle, not a dust mote.

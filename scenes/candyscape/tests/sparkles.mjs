@@ -38,7 +38,10 @@ const mine=(events,i)=>events.filter(e=>e.index===i).length;
   const run=()=>{const s=new ReefSimulation(9),out=[];for(let k=0;k<600;k++){s.step(FIXED_STEP,at(s.fish[(k>>4)%s.fish.length],.3));out.push(...s.drainSparkles());}return out;};
   assert.deepEqual(run(),run());
 }
-const { SparklePool,SPARKLE_LIFE,SPARKLE_COLORS,createSparkles }=await import('../src/sparkles.js');
+const { SparklePool,SPARKLE_LIFE,SPARKLE_COLORS,SPARKLE_SIZE,createSparkles }=await import('../src/sparkles.js');
+// A sparkle must be visible from the wide view: the fish swim 15–18 units from the lens, so a
+// new glint there is at least 8 px before the pixel ratio, not a 2 px speck lost in the motes.
+for(const depth of [15,18])assert.ok(Math.min(SPARKLE_SIZE.max,Math.max(SPARKLE_SIZE.min,SPARKLE_SIZE.scale/depth))>=8,`Sparkle size at ${depth} u`);
 const THREE=await import('three');
 // One burst: N live sprites that rise, fade and retire on time.
 {
