@@ -18,6 +18,17 @@ const mine=(events,i)=>events.filter(e=>e.index===i).length;
   let later=0;for(let k=0;k<Math.round(.3/FIXED_STEP);k++){s.step(FIXED_STEP,at(f));later+=mine(s.drainSparkles(),i);}
   assert.equal(later,1,'Sparkles again after cooldown');
 }
+// A cursor left resting is not a hover: on the wallpaper the mouse is parked over the desktop
+// for hours, and a fish passing under it must not keep the tank glittering. Sparkles need a
+// cursor that moved within the last SPARKLE.idle seconds.
+{
+  const s=new ReefSimulation(3),i=s.fish.findIndex(f=>f.kind==='mint'),f=s.fish[i];
+  const parked=()=>({...at(f),idle:SPARKLE.idle+.5}),fresh=()=>({...at(f),idle:SPARKLE.idle-.5});
+  let n=0;for(let k=0;k<300;k++){s.step(FIXED_STEP,parked());n+=s.drainSparkles().length;}
+  assert.equal(n,0,'A parked cursor never sparkles');
+  s.step(FIXED_STEP,fresh());assert.equal(mine(s.drainSparkles(),i),1,'A cursor that just moved sparkles');
+  assert.ok(SPARKLE.idle>=1&&SPARKLE.idle<=4);
+}
 // No pointer, or a pointer far from everything: nothing.
 {
   const s=new ReefSimulation(3);

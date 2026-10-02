@@ -122,6 +122,7 @@ async function start(){
   function renderFrame(elapsed,now){
     const before=performance.now();
     accumulator+=elapsed;let steps=0;
+    if(pointer)pointer.idle=(performance.now()-lastMoved)/1000;
     while(accumulator>=FIXED_STEP&&steps<6){simulation.step(FIXED_STEP,pointer);accumulator-=FIXED_STEP;steps++;}
     if(steps===6)accumulator=0;
     if(pointer){pointer.speed*=Math.exp(-elapsed*8);}
@@ -165,13 +166,15 @@ async function start(){
   const observer=new ResizeObserver(()=>resize());observer.observe(stage);
   resize(false);
 
-  let pointer=null,lastPointer=0;const point=new THREE.Vector3(),lastPoint=new THREE.Vector3(),ndc=new THREE.Vector2(),raycaster=new THREE.Raycaster();
+  let pointer=null,lastPointer=0,lastMoved=0;const point=new THREE.Vector3(),lastPoint=new THREE.Vector3(),ndc=new THREE.Vector2(),raycaster=new THREE.Raycaster();
   const plane=new THREE.Plane(new THREE.Vector3(0,0,1),-2.4);
   function project(event){const bounds=canvas.getBoundingClientRect();ndc.set((event.clientX-bounds.left)/bounds.width*2-1,-(event.clientY-bounds.top)/bounds.height*2+1);raycaster.setFromCamera(ndc,camera);return raycaster.ray.intersectPlane(plane,point);}
   canvas.addEventListener('pointermove',event=>{
     if(!running()||!project(event))return;const now=performance.now();
     const speed=pointer?point.distanceTo(lastPoint)/Math.max(.016,(now-lastPointer)/1000):0;
-    if(!pointer)pointer={position:new THREE.Vector3(),speed:0};
+    if(!pointer)pointer={position:new THREE.Vector3(),speed:0,idle:0};
+    // The host re-sends a resting cursor; only a real change of position counts as moving.
+    if(!pointer.position.equals(point))lastMoved=now;
     pointer.position.copy(point);pointer.speed=Math.min(15,speed);lastPoint.copy(point);lastPointer=now;
   },{passive:true});
   canvas.addEventListener('pointerleave',()=>{pointer=null;});

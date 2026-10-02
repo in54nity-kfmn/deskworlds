@@ -40,7 +40,10 @@ const CRUISE={gumdrop:.59,mint:1.10,rosebud:.98,lollipop:.92};
 // plane (x, y) because the cursor is a ray into the tank, not a point at the fish's depth.
 // Separate from the alarm, which still needs a fast cursor: a hover sparkles, a swipe
 // scatters the fish and sparkles too.
-export const SPARKLE={radius:1.2,cooldown:1.5,queue:64};
+// Only a cursor that moved within the last `idle` seconds counts: on the wallpaper the mouse
+// rests over the desktop for hours, and fish drifting under a parked cursor must not keep the
+// tank glittering. pointer.idle is seconds since it last moved; absent means it just did.
+export const SPARKLE={radius:1.2,cooldown:1.5,queue:64,idle:2};
 
 export class ReefSimulation {
   constructor(seed=36719) {
@@ -237,7 +240,7 @@ export class ReefSimulation {
       if(f.spook>0&&(f.spook-=dt)<=0)f.alarm=2.3;
       if(pointer&&pointer.speed>.9&&p.distanceToSquared(pointer.position)<8.5)f.alarm=2.6;
       f.sparkle=Math.max(0,f.sparkle-dt);
-      if(pointer&&f.sparkle<=0&&(p.x-pointer.position.x)**2+(p.y-pointer.position.y)**2<SPARKLE.radius**2){
+      if(pointer&&!(pointer.idle>SPARKLE.idle)&&f.sparkle<=0&&(p.x-pointer.position.x)**2+(p.y-pointer.position.y)**2<SPARKLE.radius**2){
         f.sparkle=SPARKLE.cooldown;this.sparkles.push({index,kind:f.kind,x:p.x,y:p.y,z:p.z});
         if(this.sparkles.length>SPARKLE.queue)this.sparkles.shift();
       }
