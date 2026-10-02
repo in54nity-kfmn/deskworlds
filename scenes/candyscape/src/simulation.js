@@ -10,7 +10,7 @@ export const FIXED_STEP=1/60;
 // is 3.4 — and a captive lyretail harem is one terminal male to four to six females. Nine
 // chromis is also a keeper's number: below seven a pod concentrates its aggression on one
 // fish and eats itself down to a single survivor.
-export const POPULATION={gumdrop:3,mint:9,rosebud:7};
+export const POPULATION={gumdrop:3,mint:9,rosebud:7,lollipop:2};
 const REEF_BOUNDS=[...ROCKS,...CORAL_BOUNDS];
 // Where the two Acropora thickets sit in that list. A chromis does not merely hover near
 // its colony, it lives in it — juveniles barely leave the branches and the whole pod drops
@@ -32,11 +32,17 @@ export const GAIT={
   gumdrop:{length:.98,stride:.70,thrust:2.7,drag:.45,bout:[.7,1.1],glide:[.7,1.3],idle:.18,slip:.22,turn:1.65,pectoral:1.8,tail:.24},
   mint:{length:.82,stride:.68,thrust:2.5,drag:.32,bout:[.65,1.05],glide:[.8,1.65],idle:.17,slip:.12,turn:1.75,pectoral:1.65,tail:1},
   rosebud:{length:1.14,stride:.68,thrust:2.2,drag:.29,bout:[.70,1.15],glide:[.9,1.8],idle:.17,slip:.12,turn:1.55,pectoral:1.5,tail:1},
+  lollipop:{length:.90,stride:.70,thrust:2.3,drag:.30,bout:[.70,1.10],glide:[.9,1.7],idle:.17,slip:.12,turn:1.5,pectoral:1.5,tail:1},
 };
+// Top cruising speed per species, units/s.
+const CRUISE={gumdrop:.59,mint:1.10,rosebud:.98,lollipop:.92};
 
 export class ReefSimulation {
   constructor(seed=36719) {
-    this.random=randomGenerator(seed);this.time=0;this.fish=[];this.food=Array.from({length:32},()=>({active:false,position:V(),velocity:V(),age:0,size:0}));
+    this.random=randomGenerator(seed);
+    // The lollipops draw from their own stream, as Coral reef's shrimp did: sharing the
+    // reef fish's stream made adding two loners reshuffle all nineteen other trajectories.
+    this.lollyRandom=randomGenerator(seed^0x10771b0b);this.time=0;this.fish=[];this.food=Array.from({length:32},()=>({active:false,position:V(),velocity:V(),age:0,size:0}));
     this.lastFeed=-10;this.consumed=0;this.steps=0;
     this._flow=V();this._delta=V();this._desired=V();this._force=V();this._sep=V();this._cohesion=V();this._align=V();this._relative=V();this._heading=V();this.navigation=reefNavigation();
     this.shoals=SHOALS.map((s,i)=>({...s,home:V(...s.home),centre:V(...s.home),velocity:V(),swell:1,out:V(),path:[],sector:i===0?2:i===1?0:1,direction:i===1?-1:1,legs:1}));
@@ -49,10 +55,12 @@ export class ReefSimulation {
     // Rank 0 is the terminal male. FishBase puts the male at 15 cm against 7 cm for the
     // female, and an aquarium harem at about 12.5 cm to 9; he is half again their length.
     for(let i=0;i<7;i++)this.add('rosebud',null,(i?.66:1.00)+this.random()*.09,i,2);
+    // Two loners, one over each island, out in open water clear of the coral.
+    for(let i=0;i<2;i++)this.add('lollipop',[[-6.4,6.4,2.6],[6.2,6.6,2.8]][i],.80+this.lollyRandom()*.08,i);
     this.previous=this.fish.map(()=>({p:V(),v:V(),alarm:0}));
   }
   add(kind,position,size,rank,shoal=-1) {
-    const r=this.random;
+    const r=kind==='lollipop'?this.lollyRandom:this.random;
     const f={kind,rank,size,shoal,station:V(r()*2-1,r()*2-1,r()*2-1),position:V(),velocity:V(kind==='gumdrop'?.11:-.28,0,.02),goal:V(),goalTimer:0,phase:r()*6.28,yaw:kind==='gumdrop'?0:Math.PI,pitch:0,bank:0,roll:0,bend:0,turning:0,
       speed:.1,wave:0,tailAmplitude:0,tailHz:0,steer:V(),route:[],routeTimer:0,cruise:.92+r()*.16,beat:false,bout:r(),pectoral:r()*6.28,rowing:1,alarm:0,shelterAccess:0,spook:0,state:'forage',hold:0,show:6+r()*9,display:0,roam:0,follow:null};
     if(position)f.position.set(...position);else{
@@ -73,9 +81,9 @@ export class ReefSimulation {
   }
   // A personal excursion shares the navigable water with the shoals, rather than a
   // separate little open-water box. Prefer a different third from the animal's position.
-  openWater(out,from=out) {
-    const sector=from.x<-2?2:from.x>2?0:(this.random()<.5?0:2);
-    return out.copy(this.navigation.destination(from,sector,this.random));
+  openWater(out,from=out,random=this.random) {
+    const sector=from.x<-2?2:from.x>2?0:(random()<.5?0:2);
+    return out.copy(this.navigation.destination(from,sector,random));
   }
   travelGoal(f,goal,dt){
     f.routeTimer-=dt;
@@ -96,8 +104,9 @@ export class ReefSimulation {
     }
     if(count)this.lastFeed=this.time;return count;
   }
+  rng(f){return f.kind==='lollipop'?this.lollyRandom:this.random;}
   chooseGoal(f) {
-    const r=this.random;
+    const r=this.rng(f);
     if(f.kind==='gumdrop') {
       // Buston's field work: percula rarely stray past the periphery of their host's
       // tentacles, and the dominant female ranges widest while the smallest non-breeder is
@@ -109,6 +118,9 @@ export class ReefSimulation {
       f.goal.set(HOST.x+Math.cos(a)*radius,HOST.y+(f.hold?.20+r()*.26:.66+r()*.94)-f.rank*.12,HOST.z+.34+Math.sin(a)*radius*.58);
       f.goalTimer=f.hold||2.8+r()*4.4;return;
     }
+    // A lollipop keeps no shoal: every goal is the next leg of a tour of the open column,
+    // a different third of the reef each time.
+    if(f.kind==='lollipop'){this.openWater(f.goal,f.position,r);f.goalTimer=14+r()*10;f.hold=0;return;}
     // A wanderer takes its next leg, then rejoins the moving shoal when the legs run out; the shoalmates that left with it keep following instead.
     if(f.roam>0&&--f.roam>0){this.openWater(f.goal,f.position);f.goalTimer=24+r()*12;f.hold=0;return;}
     // Neither species is tied to its rock the way a goby is: a chromis or an anthias will
@@ -138,7 +150,7 @@ export class ReefSimulation {
   // sideways to its goal. Speed rides the bout-and-glide cycle, and when there is nowhere
   // to go the tail falls still and the pectorals take over the hovering.
   swim(f,want,dt) {
-    const g=GAIT[f.kind],r=this.random,ease=k=>1-Math.exp(-dt*k);
+    const g=GAIT[f.kind],r=this.rng(f),ease=k=>1-Math.exp(-dt*k);
     f.steer.lerp(want,ease(f.alarm>0?12:4.5));
     const demand=f.steer.length();
     if(demand>.025){
@@ -246,7 +258,7 @@ export class ReefSimulation {
         // branches and the obstacle field is what stops it, rather than hovering politely
         // above the coral it is supposed to be hiding in.
         if(f.kind==='gumdrop')this._desired.set(HOST.x+(f.rank-1)*.44,HOST.y+.50,HOST.z+.30);
-        else{const s=this.shoals[f.shoal].shelter;this._desired.set(s.x+(p.x-s.x)*.30,s.y+(f.kind==='mint'?.55:1.05),s.z+(p.z-s.z)*.30);}
+        else{const s=f.shoal>=0?this.shoals[f.shoal].shelter:PROMONTORY;this._desired.set(s.x+(p.x-s.x)*.30,s.y+(f.kind==='mint'?.55:1.05),s.z+(p.z-s.z)*.30);}
         goal=this._desired;
       }else if(f.display>0){
         f.state='display';
@@ -263,7 +275,7 @@ export class ReefSimulation {
       }
       // A fish being cleaned, or one wallowing in the tentacles, is barely swimming.
       if(f.kind!=='gumdrop'&&f.alarm<=0)goal=this.travelGoal(f,goal,dt);
-      const topSpeed=(f.kind==='gumdrop'?.59:f.kind==='rosebud'?.98:1.10)*f.cruise*(f.alarm>0?1.65:f.display>0?1.5:food?1.3:f.hold&&p.distanceToSquared(f.goal)<.5?.16:1);
+      const topSpeed=CRUISE[f.kind]*f.cruise*(f.alarm>0?1.65:f.display>0?1.5:food?1.3:f.hold&&p.distanceToSquared(f.goal)<.5?.16:1);
       this._delta.subVectors(goal,p);const dist=this._delta.length();
       this._force.copy(this._delta).multiplyScalar(dist>1e-5?Math.min(topSpeed,dist*.68)/dist:0);
       this._force.sub(this._flow); // swim velocity relative to the moving water
@@ -273,7 +285,7 @@ export class ReefSimulation {
         // Open-water fish keep well over a body length between them; the clownfish crowd.
         const personal=(f.size+other.size)*(f.kind==='gumdrop'?.46:.68);
         if(d2<personal*personal&&d2>1e-8)this._sep.addScaledVector(this._delta,(personal-Math.sqrt(d2))/d2*(f.kind==='gumdrop'&&other.kind==='gumdrop'&&f.rank>other.rank?1.9:1.1));
-        if(f.kind!=='gumdrop'&&other.kind===f.kind&&d2<7.84&&d2>.18){this._cohesion.add(q);this._align.add(old[j].v);neighbors++;}
+        if(f.shoal>=0&&other.kind===f.kind&&d2<7.84&&d2>.18){this._cohesion.add(q);this._align.add(old[j].v);neighbors++;}
         // Only a fresh bolt recruits, so the alarm cannot circulate back round the school
         // and hold it up indefinitely.
         if(f.alarm<=0&&f.spook<=0&&other.kind===f.kind&&old[j].alarm>1.9&&d2<4.0)f.spook=.055;

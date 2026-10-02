@@ -7,8 +7,8 @@ const { HOST }=await import('../src/terrain.js');
 const { Vector3 }=await import('three');
 const V=(x=0,y=0,z=0)=>new Vector3(x,y,z);
 const sim=new ReefSimulation();
-assert.deepEqual([...new Set(sim.fish.map(f=>f.kind))].sort(),['gumdrop','mint','rosebud'],'Candyscape cast keys');
-assert.equal(sim.fish.length,19);assert.equal(POPULATION.gumdrop,3);
+assert.deepEqual([...new Set(sim.fish.map(f=>f.kind))].sort(),['gumdrop','lollipop','mint','rosebud'],'Candyscape cast keys');
+assert.equal(sim.fish.length,21);assert.equal(POPULATION.gumdrop,3);
 // Candyscape keeps the fish and drops the cleaner shrimp: no station animals, no cleaning.
 assert.equal(sim.shrimp,undefined,'Candyscape has no cleaner shrimp');assert.ok(!('shrimp' in POPULATION));
 const clowns=sim.fish.filter(f=>f.kind==='gumdrop').map(f=>f.size);
@@ -16,7 +16,7 @@ assert.ok(Math.abs(clowns[0]/clowns[1]-1.26)<.05&&Math.abs(clowns[1]/clowns[2]-1
 const goldies=sim.fish.filter(f=>f.kind==='rosebud');
 const male=goldies.find(f=>!f.rank),hens=goldies.filter(f=>f.rank);
 assert.ok(male.size/(hens.reduce((s,f)=>s+f.size,0)/hens.length)>1.35,'Terminal male must outsize the harem');
-let maxHome=0,cleaned=0,displayed=0,henDisplayed=0;
+let maxHome=0,maxFed=0,cleaned=0,displayed=0,henDisplayed=0;
 assert.ok(male.position.y<hens.reduce((n,f)=>n+f.position.y,0)/hens.length);
 for(let i=0;i<60*180;i++){
   if(i===60*10||i===60*32)sim.feed(-1.5,1.3);
@@ -26,11 +26,15 @@ for(let i=0;i<60*180;i++){
     assert.ok(sim.diagnostics().finite);
     for(const f of sim.fish){
       assert.ok(f.velocity.length()<1.701);
-      if(f.kind==='gumdrop')maxHome=Math.max(maxHome,Math.hypot(f.position.x-HOST.x,f.position.y-HOST.y,f.position.z-HOST.z));
+      // Territory holds whenever there is nothing to eat. A gumdrop may chase a pellet out to
+      // the simulation's own food reach — √10 from a point .7 above the host's disc — so
+      // while pellets are in the water the bound is that reach, not the territory.
+      if(f.kind==='gumdrop'){const d=Math.hypot(f.position.x-HOST.x,f.position.y-HOST.y,f.position.z-HOST.z);
+        if(sim.food.some(p=>p.active))maxFed=Math.max(maxFed,d);else maxHome=Math.max(maxHome,d);}
     }
   }
 }
-assert.ok(maxHome<2.6,`Clownfish host radius ${maxHome}`);
+assert.ok(maxHome<2.6,`Gumdrop host radius ${maxHome}`);assert.ok(maxFed<Math.sqrt(10)+.7,`Gumdrop chased food ${maxFed} from its host`);
 let aligned=0,moving=0;const flow=V(),rel=V(),head=V();
 for(let i=0;i<60*20;i++){sim.step(FIXED_STEP);for(const f of sim.fish){currentAt(f.position,sim.time,flow);rel.copy(f.velocity).sub(flow);if(rel.length()<.2)continue;head.set(Math.cos(f.yaw)*Math.cos(f.pitch),Math.sin(f.pitch),-Math.sin(f.yaw)*Math.cos(f.pitch));moving++;if(head.dot(rel)/rel.length()>.94)aligned++;}}
 assert.ok(aligned/moving>.85,`Fish swim along their heading ${aligned}/${moving} of the time`);
@@ -59,4 +63,18 @@ for(const t of [0,1,10,100,10000]){
 }
 for(const w of WAVES)assert.ok(Math.abs(w.omega*w.omega-98.1*w.k*Math.tanh(w.k*SURFACE))<1e-9);
 assert.throws(()=>sim.step(NaN),RangeError);assert.throws(()=>sim.step(1),RangeError);
+// The lollipop is a loner: no shoal slot, never a follower, and it still roams the reef.
+const lollies=new ReefSimulation(7).fish.filter(f=>f.kind==='lollipop');
+assert.equal(lollies.length,2);assert.ok(lollies.every(f=>f.shoal===-1));
+{
+  const s=new ReefSimulation(7),mine=s.fish.filter(f=>f.kind==='lollipop'),span=mine.map(f=>[f.position.x,f.position.x]);
+  for(let i=0;i<60*120;i++){s.step(FIXED_STEP);mine.forEach((f,k)=>{assert.equal(f.follow,null,'A lollipop never follows');span[k][0]=Math.min(span[k][0],f.position.x);span[k][1]=Math.max(span[k][1],f.position.x);});}
+  span.forEach(([lo,hi],k)=>assert.ok(hi-lo>8,`Lollipop ${k} roamed only ${(hi-lo).toFixed(1)} u`));
+}
+// Lollipop alarm: it has no shoal to shelter with, which must not crash the shelter lookup.
+{
+  const s=new ReefSimulation(11),lolly=s.fish.find(f=>f.kind==='lollipop');
+  for(let i=0;i<120;i++)s.step(FIXED_STEP,{position:lolly.position.clone(),speed:8});
+  assert.equal(lolly.state,'shelter');assert.ok(s.diagnostics().finite);
+}
 console.log(JSON.stringify({pass:true,simulatedSeconds:sim.time,consumed:sim.consumed,maxClownfishHostDistance:maxHome,...sim.diagnostics()},null,2));

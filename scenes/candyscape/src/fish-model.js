@@ -85,6 +85,21 @@ const SPECIES={
     pectoral:{base:[[.248,.30],[.282,.00],[.316,-.30]],tip:[[.348,.020,.074],[.416,-.026,.092],[.462,-.106,.088],[.428,-.166,.066],[.356,-.148,.046]]},
     pelvic:{base:[[.340,-.88],[.375,-.98]],tip:[[.408,-.268,.032],[.476,-.336,.038],[.526,-.284,.024]]},
   },
+  // A candy invention, not a measured fish: a deep, near-round disc like a discus, with
+  // tall soft dorsal and anal fins and a broad trailing caudal, so it reads as a lollipop
+  // swimming edge-on and as a disc broadside.
+  lollipop:{
+    len:.90,
+    back:[.030,.120,.200,.250,.272,.276,.262,.226,.168,.104,.052],
+    belly:[.030,.118,.196,.246,.268,.268,.250,.206,.146,.088,.046],
+    half:[.010,.040,.058,.066,.068,.066,.058,.045,.030,.018,.011],
+    eye:{u:.120,v:.36,r:.050},scales:[30,12],cheek:.14,veil:[.80,.40],
+    dorsal:{from:.200,to:.880,sink:.014,reach:[.060,.120,.160,.180,.190,.200,.210,.190,.120]},
+    anal:{from:.560,to:.880,sink:.012,reach:[.060,.150,.190,.170,.100]},
+    caudal:[[-.600,.220,0],[-.700,.260,0],[-.780,.220,0],[-.830,.120,0],[-.850,0,0],[-.830,-.120,0],[-.780,-.220,0],[-.700,-.260,0],[-.600,-.220,0]],
+    pectoral:{base:[[.252,.30],[.285,.00],[.318,-.30]],tip:[[.350,.020,.080],[.418,-.024,.100],[.460,-.100,.096],[.428,-.160,.070],[.360,-.140,.050]]},
+    pelvic:{base:[[.340,-.88],[.375,-.98]],tip:[[.408,-.290,.034],[.476,-.360,.040],[.526,-.300,.026]]},
+  },
 };
 const axis=(kind,u)=>SNOUT-u*SPECIES[kind].len;
 // A cubic Hermite through the knots with central-difference tangents, so the profile has
@@ -245,6 +260,12 @@ const SKIN={
     vec3 male=mix(vec3(.780,.100,.620),vec3(.600,.200,.950),smoothstep(.13,.46,u));
     male=mix(male,vec3(.850,.150,.550),smoothstep(.60,.94,u));
     skin=mix(skin,mix(male,male*vec3(1.15,.90,1.15),smoothstep(.54,1.,band)),vTrim.y);`,
+  lollipop:`
+    // Split down the flank, pink over lime, with a white candy swirl laid across both.
+    float split=smoothstep(-.03,.03,band-(.30+.45*u));
+    vec3 skin=mix(vec3(1.00,.300,.700),vec3(.700,1.00,.250),split);
+    float swirl=.5+.5*sin(u*14.+band*9.+vTrim.x*6.);
+    skin=mix(skin,vec3(1.00,.970,.980),smoothstep(.82,.95,swirl)*.75);`,
 };
 // Fin membranes: the pigment across the span, hinge (0) to free margin (1). `tail`,
 // `below`, `paired` and `pelvic` name which fin this fragment is on, because the median
@@ -265,18 +286,22 @@ const FINS={
     web=mix(web,mix(vec3(.900,.250,.750),vec3(.550,.250,.980),smoothstep(.45,1.,span)),vTrim.y*(.50+.44*tail));
     web=mix(web,vec3(.400,.300,.950),vTrim.y*below*(1.-tail)*.62);
     web=mix(web,vec3(1.00,.900,.300),vTrim.y*(paired-pelvic)*smoothstep(.22,.74,span));`,
+  lollipop:`
+    vec3 web=mix(vec3(1.00,.400,.800),vec3(.750,1.00,.350),span);
+    web=mix(web,vec3(1.00,.970,.980),smoothstep(.92,1.,span)*.6);`,
 };
 // The guanine flare under the scales, tinted to each candy.
-const SHEEN={gumdrop:'vec3(.200,.120,.180)',mint:'vec3(.250,.450,.550)',rosebud:'vec3(.400,.200,.450)'};
+const SHEEN={gumdrop:'vec3(.200,.120,.180)',mint:'vec3(.250,.450,.550)',rosebud:'vec3(.400,.200,.450)',lollipop:'vec3(.350,.300,.400)'};
 const EYE={
   gumdrop:'vec3 iris=vec3(1.00,.750,.200),rim=vec3(.450,.050,.200);',
   mint:'vec3 iris=vec3(.850,.950,1.00),rim=vec3(.100,.350,.400);',
   rosebud:'vec3 iris=vec3(1.00,.850,.300),rim=mix(vec3(.550,.250,.950),vec3(.850,.150,.550),vTrim.y);',
+  lollipop:'vec3 iris=vec3(.750,1.00,.350),rim=vec3(.550,.050,.350);',
 };
 // Candy fins are lit from behind like stained glass: a little of their own colour is added
 // back as emission, most toward the thin free margin. Not bioluminescence — no glow in shadow
 // beyond what the membrane would pass.
-export const GLOW={gumdrop:.10,mint:.16,rosebud:.14};
+export const GLOW={gumdrop:.10,mint:.16,rosebud:.14,lollipop:.22};
 export const SPECIES_KEYS=Object.keys(SPECIES);
 export const SHADER_TABLES={SKIN,FINS,SHEEN,EYE,GLOW};
 
@@ -400,7 +425,7 @@ function fishMaterial(kind) {
  */
 export function createFishSchool(scene,simulation){
   const groups=[];
-  for(const kind of ['gumdrop','mint','rosebud']){
+  for(const kind of SPECIES_KEYS){
     const fish=simulation.fish.filter(f=>f.kind===kind),geometry=makeFishGeometry(kind);
     const data=new Float32Array(fish.length*4),attribute=new THREE.InstancedBufferAttribute(data,4).setUsage(THREE.DynamicDrawUsage);
     const gait=new Float32Array(fish.length*4),gaitAttribute=new THREE.InstancedBufferAttribute(gait,4).setUsage(THREE.DynamicDrawUsage);

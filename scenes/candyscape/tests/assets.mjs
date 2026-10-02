@@ -7,6 +7,7 @@ const { makeFishGeometry,SPECIES_KEYS,SHADER_TABLES }=await import('../src/fish-
 // fails on the GPU; catch that here instead.
 for(const kind of SPECIES_KEYS)for(const [name,table] of Object.entries(SHADER_TABLES))assert.ok(table[kind]!==undefined,`${name} has no entry for ${kind}`);
 assert.ok(SHADER_TABLES.GLOW.gumdrop>0&&SHADER_TABLES.GLOW.mint>0&&SHADER_TABLES.GLOW.rosebud>0,'Candy fins glow');
+assert.ok(SPECIES_KEYS.includes('lollipop')&&SHADER_TABLES.GLOW.lollipop>SHADER_TABLES.GLOW.mint,'Lollipop is the brightest');
 import { TANK } from '../src/layout.js';
 
 for(const kind of SPECIES_KEYS){
