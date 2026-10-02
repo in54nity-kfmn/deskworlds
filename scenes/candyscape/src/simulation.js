@@ -36,6 +36,11 @@ export const GAIT={
 };
 // Top cruising speed per species, units/s.
 const CRUISE={gumdrop:.59,mint:1.10,rosebud:.98,lollipop:.92};
+// A cursor resting near a fish makes it shed a burst of sparkles. Measured across the screen
+// plane (x, y) because the cursor is a ray into the tank, not a point at the fish's depth.
+// Separate from the alarm, which still needs a fast cursor: a hover sparkles, a swipe
+// scatters the fish and sparkles too.
+export const SPARKLE={radius:1.2,cooldown:1.5,queue:64};
 
 export class ReefSimulation {
   constructor(seed=36719) {
@@ -43,7 +48,7 @@ export class ReefSimulation {
     // The lollipops draw from their own stream, as Coral reef's shrimp did: sharing the
     // reef fish's stream made adding two loners reshuffle all nineteen other trajectories.
     this.lollyRandom=randomGenerator(seed^0x10771b0b);this.time=0;this.fish=[];this.food=Array.from({length:32},()=>({active:false,position:V(),velocity:V(),age:0,size:0}));
-    this.lastFeed=-10;this.consumed=0;this.steps=0;
+    this.lastFeed=-10;this.sparkles=[];this.consumed=0;this.steps=0;
     this._flow=V();this._delta=V();this._desired=V();this._force=V();this._sep=V();this._cohesion=V();this._align=V();this._relative=V();this._heading=V();this.navigation=reefNavigation();
     this.shoals=SHOALS.map((s,i)=>({...s,home:V(...s.home),centre:V(...s.home),velocity:V(),swell:1,out:V(),path:[],sector:i===0?2:i===1?0:1,direction:i===1?-1:1,legs:1}));
     // Buston & Cant measured 177 adjacent-rank pairs on wild percula: a dominant ends up
@@ -62,7 +67,7 @@ export class ReefSimulation {
   add(kind,position,size,rank,shoal=-1) {
     const r=kind==='lollipop'?this.lollyRandom:this.random;
     const f={kind,rank,size,shoal,station:V(r()*2-1,r()*2-1,r()*2-1),position:V(),velocity:V(kind==='gumdrop'?.11:-.28,0,.02),goal:V(),goalTimer:0,phase:r()*6.28,yaw:kind==='gumdrop'?0:Math.PI,pitch:0,bank:0,roll:0,bend:0,turning:0,
-      speed:.1,wave:0,tailAmplitude:0,tailHz:0,steer:V(),route:[],routeTimer:0,cruise:.92+r()*.16,beat:false,bout:r(),pectoral:r()*6.28,rowing:1,alarm:0,shelterAccess:0,spook:0,state:'forage',hold:0,show:6+r()*9,display:0,roam:0,follow:null};
+      speed:.1,wave:0,tailAmplitude:0,tailHz:0,steer:V(),route:[],routeTimer:0,cruise:.92+r()*.16,beat:false,bout:r(),pectoral:r()*6.28,rowing:1,alarm:0,shelterAccess:0,spook:0,sparkle:0,state:'forage',hold:0,show:6+r()*9,display:0,roam:0,follow:null};
     if(position)f.position.set(...position);else{
       this.station(f,f.position);
       // Spawn in water, not inside a thicket followed by a visible first-frame push-out.
@@ -231,6 +236,11 @@ export class ReefSimulation {
       // school that flinches as one object and one that flinches as a wave.
       if(f.spook>0&&(f.spook-=dt)<=0)f.alarm=2.3;
       if(pointer&&pointer.speed>.9&&p.distanceToSquared(pointer.position)<8.5)f.alarm=2.6;
+      f.sparkle=Math.max(0,f.sparkle-dt);
+      if(pointer&&f.sparkle<=0&&(p.x-pointer.position.x)**2+(p.y-pointer.position.y)**2<SPARKLE.radius**2){
+        f.sparkle=SPARKLE.cooldown;this.sparkles.push({index,kind:f.kind,x:p.x,y:p.y,z:p.z});
+        if(this.sparkles.length>SPARKLE.queue)this.sparkles.shift();
+      }
       // Ease out of the shelter envelope after an alarm. Restoring its full radius in a
       // single step would visibly eject a chromis from the thicket when the timer expires.
       f.shelterAccess+=((f.alarm>0?1:0)-f.shelterAccess)*(1-Math.exp(-dt*(f.alarm>0?4:.9)));
@@ -337,6 +347,8 @@ export class ReefSimulation {
       if(food&&p.distanceToSquared(food.position)<(f.size*.42)**2){food.active=false;this.consumed++;f.goalTimer=0;}
     }
   }
+  // The renderer takes the bursts once per frame; sparkle state never feeds back into behaviour.
+  drainSparkles(){const out=this.sparkles;this.sparkles=[];return out;}
   diagnostics(){
     return {time:this.time,steps:this.steps,population:POPULATION,food:this.food.filter(p=>p.active).length,consumed:this.consumed,
       maxSpeed:Math.max(...this.fish.map(f=>f.velocity.length())),finite:this.fish.every(f=>[...f.position,...f.velocity,f.yaw,f.phase].every(Number.isFinite))};
