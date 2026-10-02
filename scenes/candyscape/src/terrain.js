@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { merge, ellipsoid, tint } from './geometry.js';
 import { randomGenerator, groundHeight } from './math.js';
 import { underwater, extinctionGLSL, inscatterGLSL, surfaceGLSL, ABSORB, SURFACE, waterTime } from './water.js';
-import { ROCKS, HOST, STATIONS, TANK } from './layout.js';
-export {ROCKS,HOST,STATIONS};
+import { ROCKS, HOST, TANK } from './layout.js';
+export {ROCKS,HOST};
 let surfaceField=null,surfaceW=0,surfaceH=0;
 export function supportHeight(x,z){
   if(surfaceField){const u=Math.max(0,Math.min(surfaceW-1,(x+9.65)/19.3*(surfaceW-1))),v=Math.max(0,Math.min(surfaceH-1,(z+4.1)/10.2*(surfaceH-1))),ix=Math.min(surfaceW-2,Math.floor(u)),iz=Math.min(surfaceH-2,Math.floor(v)),tx=u-ix,tz=v-iz;
@@ -99,7 +99,7 @@ export async function createTerrain(scene){
   // merge() carries a color stream, which is where each piece's surface triple rides.
   const rubbleGeo=merge(rubble);rubbleGeo.setAttribute('surface',rubbleGeo.getAttribute('color'));rubbleGeo.deleteAttribute('color');
   const rubbleMesh=new THREE.Mesh(rubbleGeo,rockMat);rubbleMesh.receiveShadow=true;scene.add(rubbleMesh);
-  return {obstacles:ROCKS,host:HOST,stations:STATIONS,rockSurface:rocks};
+  return {obstacles:ROCKS,host:HOST,rockSurface:rocks};
 }
 /** The tank's back wall, seen from inside the water. A real reef tank's rear pane is lost
  *  in the blue, so the wall is painted as the water carrying on past it: the same glow and

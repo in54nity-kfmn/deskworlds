@@ -6,7 +6,6 @@ import { createTerrain, createBackdrop } from './terrain.js';
 import { createCorals } from './corals.js';
 import { createAnemone } from './anemone.js';
 import { createFishSchool } from './fish-model.js';
-import { createShrimp } from './shrimp.js';
 import { createParticles } from './particles.js';
 import { ReefSimulation, FIXED_STEP } from './simulation.js';
 import { views } from './views.js';
@@ -91,11 +90,11 @@ async function start(){
   rockPrepass.add(new THREE.Mesh(rockSurface.geometry,rockDepthMaterial));
   const simulation=new ReefSimulation();
   const fishSchool=createFishSchool(scene,simulation);
-  const shrimp=createShrimp(scene,simulation),particles=createParticles(scene,simulation,shadow);
+  const particles=createParticles(scene,simulation,shadow);
   function sync(dt){
     waterTime.value=simulation.time;
     fishSchool.update();
-    shrimp.update();particles.update(dt);
+    particles.update(dt);
   }
   let loop=null,accumulator=0,frames=0,zeroSize=false;
   let cpuEMA=0,slowSamples=0,autoScale=1,ratio=1;

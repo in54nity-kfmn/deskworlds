@@ -35,10 +35,6 @@ export const ANEMONES=[HOST,
   {x:4.80,y:1.10,z:2.50,radius:.42,form:'compact',lean:[-.30,.50]},
   {x:-2.35,y:1.02,z:2.25,radius:.40,form:'compact',lean:[.20,.50]},
   {x:-2.45,y:1.30,z:1.75,radius:.26,form:'compact',lean:[0,.60]}];
-// Both stations are flat rock shoulders the cleaner shrimp advertise from. Their y is the
-// rock top there — the shrimp seat themselves off the baked surface, but a station buried
-// inside the rock would still send grazing fish to the wrong height.
-export const STATIONS=[{x:2.23,y:.57,z:2.22},{x:-5.15,y:.98,z:2.72}];
 // Coral envelopes fish steer around. The last three are the gorgonian fan, which
 // stands well up into the swimming volume, and the arch lintel colonies.
 export const CORAL_BOUNDS=[[-6.0,4.35,-1.05,1.4,1.4,1.3],[6.0,4.2,-1.4,1.5,1.3,1.3],[4.4,3.1,-.2,1.65,.45,1.5],
